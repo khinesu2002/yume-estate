@@ -31,10 +31,10 @@ function Section({ children, last }: { children: React.ReactNode; last?: boolean
   return (
     <section style={{
       background: "#ffffff",
-      padding: "64px 0",
+      padding: "clamp(32px, 5vw, 64px) 0",
       borderBottom: `1px solid #f0f0f0`,
     }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 40px" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 clamp(16px, 4vw, 40px)" }}>
         {children}
       </div>
     </section>
@@ -69,7 +69,7 @@ function SectionHead({ en, my, suben, submy, lang, onViewMore }: {
 }
 
 // ── Property Card — clean white, Silicon Valley style ──
-function PropCard({ gradient, badge, badgeColor, title, titleMy, sub, subMy, price, priceMy, priceLabel, priceLabelMy, beds, baths, tag, tagMy, lang, onClick, listingType }: any) {
+function PropCard({ gradient, badge, badgeColor, title, titleMy, sub, subMy, price, priceLabel, priceLabelMy, beds, baths, tag, tagMy, lang, onClick, listingType }: any) {
   const ff = lang === "my" ? "'Padauk','Myanmar Text',sans-serif" : "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
   const [hovered, setHovered] = useState(false);
   return (
@@ -109,9 +109,9 @@ function PropCard({ gradient, badge, badgeColor, title, titleMy, sub, subMy, pri
           </div>
         )}
         {/* Save heart */}
-        <button onClick={e => e.stopPropagation()} aria-label="Save property"
-          style={{ position: "absolute", top: "10px", right: "10px", background: "rgba(255,255,255,0.9)", border: "none", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#bd9468" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <button onClick={e => e.stopPropagation()}
+          style={{ position: "absolute", top: "10px", right: "10px", background: "rgba(255,255,255,0.9)", border: "none", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
+          ♡
         </button>
       </div>
 
@@ -127,14 +127,12 @@ function PropCard({ gradient, badge, badgeColor, title, titleMy, sub, subMy, pri
         )}
         {(beds || baths) && (
           <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-            {beds && <span style={{ color: "#888888", fontSize: "12px" }}>{beds} {lang === "my" ? "အိပ်ခန်း" : "Bed"}</span>}
-            {baths && <span style={{ color: "#888888", fontSize: "12px" }}>{baths} {lang === "my" ? "ရေချိုးခန်း" : "Bath"}</span>}
+            {beds && <span style={{ color: "#888888", fontSize: "12px" }}>{beds} Bed</span>}
+            {baths && <span style={{ color: "#888888", fontSize: "12px" }}>{baths} Bath</span>}
           </div>
         )}
         <div style={{ borderTop: "1px solid #f5f5f5", paddingTop: "10px", marginTop: "4px" }}>
-          <p style={{ color: "#111d2b", fontSize: "17px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}>
-            {lang === "my" && priceMy ? priceMy : price}
-          </p>
+          <p style={{ color: "#111d2b", fontSize: "17px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}>{price}</p>
           {priceLabel && (
             <p style={{ color: "#aaaaaa", fontSize: "11px", margin: 0, fontFamily: ff }}>
               {lang === "my" && priceLabelMy ? priceLabelMy : priceLabel}
@@ -146,14 +144,29 @@ function PropCard({ gradient, badge, badgeColor, title, titleMy, sub, subMy, pri
   );
 }
 
-// ── 4-card grid ──
+// ── 4-card grid — responsive: 2 cols on mobile, 4 on desktop ──
 function CardGrid({ items, lang, listingType, onPropertyClick }: { items: any[]; lang: Lang; listingType: string; onPropertyClick?: (id: string) => void }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
-      {items.slice(0, 4).map((item, i) => (
-        <PropCard key={i} {...item} lang={lang} listingType={listingType} onClick={() => onPropertyClick?.(item.id || String(i))} />
-      ))}
-    </div>
+    <>
+      <style>{`
+        .yume-card-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+        @media (max-width: 768px) {
+          .yume-card-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+          }
+        }
+      `}</style>
+      <div className="yume-card-grid">
+        {items.slice(0, 4).map((item, i) => (
+          <PropCard key={i} {...item} lang={lang} listingType={listingType} onClick={() => onPropertyClick?.(item.id || String(i))} />
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -179,56 +192,56 @@ export default function HomePageSections({ lang, listingType, onPropertyClick, o
 
   // ── Projects data ──
   const projects = [
-    { id:"p1", title: "The Grand Yankin Tower", titleMy: "ဂရမ်းဒ် ရန်ကင်းတာဝါ", sub: "Yankin, Yangon", subMy: "ရန်ကင်း၊ ရန်ကုန်", price: isBuy ? "From 1,500 Lakh" : "8 Lakh/mo", priceMy: isBuy ? "သိန်း ၁,၅၀၀ မှ" : "၈ သိန်း/လ", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", priceLabelMy: isBuy ? "ပိုင်ဆိုင်မှု · ကွန်ဒို" : "ကွန်ဒို · ငှားရမ်း", badge: "NEW", badgeColor: "#16a34a", beds: 1, baths: 1, gradient: ["#4a6fa5","#6b8cba"], tag: "Launching June 2026" },
-    { id:"p2", title: "Mandalay Royal Residences", titleMy: "မန္တလေး ရိုင်ယယ်လ်", sub: "Chanayethazan, Mandalay", subMy: "ချမ်းအေးသာဇံ၊ မန္တလေး", price: isBuy ? "From 1,200 Lakh" : "6 Lakh/mo", priceMy: isBuy ? "သိန်း ၁,၂၀၀ မှ" : "၆ သိန်း/လ", priceLabel: isBuy ? "Leasehold · Apartment" : "Apartment · Rent", priceLabelMy: isBuy ? "ငှားလိုင်စင် · အပါတ်မန့်" : "အပါတ်မန့် · ငှားရမ်း", badge: "HOT", badgeColor: "#dc2626", beds: 2, baths: 2, gradient: ["#92400e","#b45309"], tag: "Selling Fast" },
-    { id:"p3", title: "Hlaing Garden Villas", titleMy: "လှိုင်း ဥယျာဉ် ဗီလာ", sub: "Hlaing, Yangon", subMy: "လှိုင်း၊ ရန်ကုန်", price: isBuy ? "From 3,500 Lakh" : "15 Lakh/mo", priceMy: isBuy ? "သိန်း ၃,၅၀၀ မှ" : "၁၅ သိန်း/လ", priceLabel: isBuy ? "Freehold · Villa" : "Villa · Rent", priceLabelMy: isBuy ? "ပိုင်ဆိုင်မှု · ဗီလာ" : "ဗီလာ · ငှားရမ်း", badge: "FEATURED", badgeColor: gold, beds: 3, baths: 2, gradient: ["#166534","#15803d"], tag: "Garden Views" },
-    { id:"p4", title: "Naypyidaw Sky Condos", titleMy: "နေပြည်တော် Sky ကွန်ဒို", sub: "Zabuthiri, Naypyidaw", subMy: "ဇဗ္ဗူသီရိ၊ နေပြည်တော်", price: isBuy ? "From 800 Lakh" : "4 Lakh/mo", priceMy: isBuy ? "သိန်း ၈၀၀ မှ" : "၄ သိန်း/လ", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", priceLabelMy: isBuy ? "ပိုင်ဆိုင်မှု · ကွန်ဒို" : "ကွန်ဒို · ငှားရမ်း", badge: "NEW", badgeColor: "#16a34a", beds: 1, baths: 1, gradient: ["#1e3a5f","#2d5a8e"], tag: "Pre-Sale" },
-    { id:"p5", title: "Taunggyi Highland Condo", titleMy: "တောင်ကြီး မြင့်မားသောနေရာ", sub: "Taunggyi, Shan State", subMy: "တောင်ကြီး၊ ရှမ်းပြည်နယ်", price: isBuy ? "From 600 Lakh" : "3 Lakh/mo", priceMy: isBuy ? "သိန်း ၆၀၀ မှ" : "၃ သိန်း/လ", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", priceLabelMy: isBuy ? "ပိုင်ဆိုင်မှု · ကွန်ဒို" : "ကွန်ဒို · ငှားရမ်း", badge: "SOON", badgeColor: "#7c3aed", beds: 1, baths: 1, gradient: ["#78350f","#92400e"], tag: "Mountain Views" },
-    { id:"p6", title: "Sanchaung Premium Tower", titleMy: "စမ်းချောင်း ပရီမီယမ် တာဝါ", sub: "Sanchaung, Yangon", subMy: "စမ်းချောင်း၊ ရန်ကုန်", price: isBuy ? "From 2,200 Lakh" : "10 Lakh/mo", priceMy: isBuy ? "သိန်း ၂,၂၀၀ မှ" : "၁၀ သိန်း/လ", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", priceLabelMy: isBuy ? "ပိုင်ဆိုင်မှု · ကွန်ဒို" : "ကွန်ဒို · ငှားရမ်း", badge: "NEW", badgeColor: "#16a34a", beds: 2, baths: 2, gradient: ["#581c87","#7c3aed"], tag: "City Views" },
-    { id:"p7", title: "Bahan Signature Residences", titleMy: "ဗဟန်း Signature နေအိမ်", sub: "Bahan, Yangon", subMy: "ဗဟန်း၊ ရန်ကုန်", price: isBuy ? "From 4,000 Lakh" : "18 Lakh/mo", priceMy: isBuy ? "သိန်း ၄,၀၀၀ မှ" : "၁၈ သိန်း/လ", priceLabel: isBuy ? "Freehold · Apartment" : "Apartment · Rent", priceLabelMy: isBuy ? "ပိုင်ဆိုင်မှု · အပါတ်မန့်" : "အပါတ်မန့် · ငှားရမ်း", badge: "PREMIUM", badgeColor: "#111d2b", beds: 3, baths: 2, gradient: ["#1e3a5f","#0f2a4a"], tag: "Lake Views" },
-    { id:"p8", title: "Hlaingtharya Smart City", titleMy: "လှိုင်သာယာ Smart City", sub: "Hlaingtharya, Yangon", subMy: "လှိုင်သာယာ၊ ရန်ကုန်", price: isBuy ? "From 300 Lakh" : "2 Lakh/mo", priceMy: isBuy ? "သိန်း ၃၀၀ မှ" : "၂ သိန်း/လ", priceLabel: isBuy ? "Freehold · Apartment" : "Apartment · Rent", priceLabelMy: isBuy ? "ပိုင်ဆိုင်မှု · အပါတ်မန့်" : "အပါတ်မန့် · ငှားရမ်း", badge: "VALUE", badgeColor: "#16a34a", beds: 1, baths: 1, gradient: ["#065f46","#047857"], tag: "Smart Home" },
+    { id:"p1", title: "The Grand Yankin Tower", titleMy: "ဂရမ်းဒ် ရန်ကင်းတာဝါ", sub: "Yankin, Yangon", subMy: "ရန်ကင်း၊ ရန်ကုန်", price: isBuy ? "From 1,500 Lakh" : "8 Lakh/mo", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", badge: "NEW", badgeColor: "#16a34a", beds: 1, baths: 1, gradient: ["#4a6fa5","#6b8cba"], tag: "Launching June 2026" },
+    { id:"p2", title: "Mandalay Royal Residences", titleMy: "မန္တလေး ရိုင်ယယ်လ်", sub: "Chanayethazan, Mandalay", subMy: "ချမ်းအေးသာဇံ၊ မန္တလေး", price: isBuy ? "From 1,200 Lakh" : "6 Lakh/mo", priceLabel: isBuy ? "Leasehold · Apartment" : "Apartment · Rent", badge: "HOT", badgeColor: "#dc2626", beds: 2, baths: 2, gradient: ["#92400e","#b45309"], tag: "Selling Fast" },
+    { id:"p3", title: "Hlaing Garden Villas", titleMy: "လှိုင်း ဥယျာဉ် ဗီလာ", sub: "Hlaing, Yangon", subMy: "လှိုင်း၊ ရန်ကုန်", price: isBuy ? "From 3,500 Lakh" : "15 Lakh/mo", priceLabel: isBuy ? "Freehold · Villa" : "Villa · Rent", badge: "FEATURED", badgeColor: gold, beds: 3, baths: 2, gradient: ["#166534","#15803d"], tag: "Garden Views" },
+    { id:"p4", title: "Naypyidaw Sky Condos", titleMy: "နေပြည်တော် Sky ကွန်ဒို", sub: "Zabuthiri, Naypyidaw", subMy: "ဇဗ္ဗူသီရိ၊ နေပြည်တော်", price: isBuy ? "From 800 Lakh" : "4 Lakh/mo", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", badge: "NEW", badgeColor: "#16a34a", beds: 1, baths: 1, gradient: ["#1e3a5f","#2d5a8e"], tag: "Pre-Sale" },
+    { id:"p5", title: "Taunggyi Highland Condo", titleMy: "တောင်ကြီး မြင့်မားသောနေရာ", sub: "Taunggyi, Shan State", subMy: "တောင်ကြီး၊ ရှမ်းပြည်နယ်", price: isBuy ? "From 600 Lakh" : "3 Lakh/mo", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", badge: "SOON", badgeColor: "#7c3aed", beds: 1, baths: 1, gradient: ["#78350f","#92400e"], tag: "Mountain Views" },
+    { id:"p6", title: "Sanchaung Premium Tower", titleMy: "စမ်းချောင်း ပရီမီယမ် တာဝါ", sub: "Sanchaung, Yangon", subMy: "စမ်းချောင်း၊ ရန်ကုန်", price: isBuy ? "From 2,200 Lakh" : "10 Lakh/mo", priceLabel: isBuy ? "Freehold · Condo" : "Condo · Rent", badge: "NEW", badgeColor: "#16a34a", beds: 2, baths: 2, gradient: ["#581c87","#7c3aed"], tag: "City Views" },
+    { id:"p7", title: "Bahan Signature Residences", titleMy: "ဗဟန်း Signature နေအိမ်", sub: "Bahan, Yangon", subMy: "ဗဟန်း၊ ရန်ကုန်", price: isBuy ? "From 4,000 Lakh" : "18 Lakh/mo", priceLabel: isBuy ? "Freehold · Apartment" : "Apartment · Rent", badge: "PREMIUM", badgeColor: "#111d2b", beds: 3, baths: 2, gradient: ["#1e3a5f","#0f2a4a"], tag: "Lake Views" },
+    { id:"p8", title: "Hlaingtharya Smart City", titleMy: "လှိုင်သာယာ Smart City", sub: "Hlaingtharya, Yangon", subMy: "လှိုင်သာယာ၊ ရန်ကုန်", price: isBuy ? "From 300 Lakh" : "2 Lakh/mo", priceLabel: isBuy ? "Freehold · Apartment" : "Apartment · Rent", badge: "VALUE", badgeColor: "#16a34a", beds: 1, baths: 1, gradient: ["#065f46","#047857"], tag: "Smart Home" },
   ];
 
   const nearSchools = [
-    { id:"ns1", title: "Kamayut Studio Hub", titleMy: "ကမာရွတ် စတူဒီယို", sub: "Near Yangon University", subMy: "ရန်ကုန် တက္ကသိုလ်နီး", price: isBuy ? "380 Lakh" : "3 Lakh/mo", priceMy: isBuy ? "သိန်း ၃၈၀" : "၃ သိန်း/လ", priceLabel: isBuy ? "Studio · For Sale" : "Studio · For Rent", priceLabelMy: isBuy ? "စတူဒီယို · ရောင်းရန်" : "စတူဒီယို · ငှားရမ်းရန်", gradient: ["#1e3a5f","#2d5a8e"], tag: "5 min to YU", tagMy: "YU မှ ၅ မိနစ်" },
-    { id:"ns2", title: "Hlaing Academic Apt", titleMy: "လှိုင်း ပညာရေး အပါတ်မန့်", sub: "Near MIT Yangon", subMy: "MIT ရန်ကုန် နီး", price: isBuy ? "650 Lakh" : "4.5 Lakh/mo", priceMy: isBuy ? "သိန်း ၆၅၀" : "၄.၅ သိန်း/လ", priceLabel: isBuy ? "Apt · For Sale" : "Apt · For Rent", priceLabelMy: isBuy ? "အပါတ်မန့် · ရောင်းရန်" : "အပါတ်မန့် · ငှားရမ်းရန်", gradient: ["#92400e","#b45309"], tag: "10 min ILBC", tagMy: "ILBC မှ ၁၀ မိနစ်" },
-    { id:"ns3", title: "Bahan ISY Zone Condo", titleMy: "ဗဟန်း ISY ဇုန် ကွန်ဒို", sub: "Near Int'l School Yangon", subMy: "ISY နီး", price: isBuy ? "1,200 Lakh" : "6 Lakh/mo", priceMy: isBuy ? "သိန်း ၁,၂၀၀" : "၆ သိန်း/လ", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", priceLabelMy: isBuy ? "ကွန်ဒို · ရောင်းရန်" : "ကွန်ဒို · ငှားရမ်းရန်", gradient: ["#581c87","#7c3aed"], tag: "ISY Zone", tagMy: "ISY ဇုန်" },
-    { id:"ns4", title: "Mayangone Campus Condo", titleMy: "မရမ်းကုန်း ကျောင်းဝင်းနီး", sub: "Near ILBC Mayangone", subMy: "ILBC မရမ်းကုန်း နီး", price: isBuy ? "900 Lakh" : "5 Lakh/mo", priceMy: isBuy ? "သိန်း ၉၀၀" : "၅ သိန်း/လ", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", priceLabelMy: isBuy ? "ကွန်ဒို · ရောင်းရန်" : "ကွန်ဒို · ငှားရမ်းရန်", gradient: ["#065f46","#047857"], tag: "ILBC Zone", tagMy: "ILBC ဇုန်" },
+    { id:"ns1", title: "Kamayut Studio Hub", titleMy: "ကမာရွတ် စတူဒီယို", sub: "Near Yangon University", subMy: "ရန်ကုန် တက္ကသိုလ်နီး", price: isBuy ? "380 Lakh" : "3 Lakh/mo", priceLabel: isBuy ? "Studio · For Sale" : "Studio · For Rent", gradient: ["#1e3a5f","#2d5a8e"], tag: "5 min to YU", tagMy: "YU မှ ၅ မိနစ်" },
+    { id:"ns2", title: "Hlaing Academic Apt", titleMy: "လှိုင်း ပညာရေး အပါတ်မန့်", sub: "Near MIT Yangon", subMy: "MIT ရန်ကုန် နီး", price: isBuy ? "650 Lakh" : "4.5 Lakh/mo", priceLabel: isBuy ? "Apt · For Sale" : "Apt · For Rent", gradient: ["#92400e","#b45309"], tag: "10 min ILBC", tagMy: "ILBC မှ ၁၀ မိနစ်" },
+    { id:"ns3", title: "Bahan ISY Zone Condo", titleMy: "ဗဟန်း ISY ဇုန် ကွန်ဒို", sub: "Near Int'l School Yangon", subMy: "ISY နီး", price: isBuy ? "1,200 Lakh" : "6 Lakh/mo", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", gradient: ["#581c87","#7c3aed"], tag: "ISY Zone", tagMy: "ISY ဇုန်" },
+    { id:"ns4", title: "Mayangone Campus Condo", titleMy: "မရမ်းကုန်း ကျောင်းဝင်းနီး", sub: "Near ILBC Mayangone", subMy: "ILBC မရမ်းကုန်း နီး", price: isBuy ? "900 Lakh" : "5 Lakh/mo", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", gradient: ["#065f46","#047857"], tag: "ILBC Zone", tagMy: "ILBC ဇုန်" },
   ];
 
   const petFriendly = [
-    { id:"pf1", title: "Yankin Pet Garden Condo", titleMy: "ရန်ကင်း တိရစ္ဆာန်ချစ်သူ", sub: "Yankin · Dog Park 2 min", subMy: "ရန်ကင်း · ၂ မိနစ်", price: isBuy ? "720 Lakh" : "5 Lakh/mo", priceMy: isBuy ? "သိန်း ၇၂၀" : "၅ သိန်း/လ", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", priceLabelMy: isBuy ? "ကွန်ဒို · ရောင်းရန်" : "ကွန်ဒို · ငှားရမ်းရန်", gradient: ["#166534","#15803d"], badge: "PETS OK", badgeColor: "#16a34a" },
-    { id:"pf2", title: "Hlaing Green Condo", titleMy: "လှိုင်း အစိမ်းရောင် ကွန်ဒို", sub: "Hlaing · Near Vet", subMy: "လှိုင်း · တိရစ္ဆာန်ဆေးနီး", price: isBuy ? "850 Lakh" : "6 Lakh/mo", priceMy: isBuy ? "သိန်း ၈၅၀" : "၆ သိန်း/လ", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", priceLabelMy: isBuy ? "ကွန်ဒို · ရောင်းရန်" : "ကွန်ဒို · ငှားရမ်းရန်", gradient: ["#065f46","#047857"], badge: "PETS OK", badgeColor: "#16a34a" },
-    { id:"pf3", title: "Tamwe Garden Home", titleMy: "တာမွေ ဥယျာဉ်အိမ်", sub: "Tamwe · Private Garden", subMy: "တာမွေ · ကိုယ်ပိုင်ဥယျာဉ်", price: isBuy ? "550 Lakh" : "4 Lakh/mo", priceMy: isBuy ? "သိန်း ၅၅၀" : "၄ သိန်း/လ", priceLabel: isBuy ? "House · For Sale" : "House · For Rent", priceLabelMy: isBuy ? "အိမ် · ရောင်းရန်" : "အိမ် · ငှားရမ်းရန်", gradient: ["#1c4532","#166534"], badge: "GARDEN", badgeColor: "#15803d" },
-    { id:"pf4", title: "Mayangone Pet Apt", titleMy: "မရမ်းကုန်း တိရစ္ဆာန်နှင့်", sub: "Mayangone · Ground Floor", subMy: "မရမ်းကုန်း · မြေညီ", price: isBuy ? "620 Lakh" : "4.5 Lakh/mo", priceMy: isBuy ? "သိန်း ၆၂၀" : "၄.၅ သိန်း/လ", priceLabel: isBuy ? "Apt · For Sale" : "Apt · For Rent", priceLabelMy: isBuy ? "အပါတ်မန့် · ရောင်းရန်" : "အပါတ်မန့် · ငှားရမ်းရန်", gradient: ["#1e3a5f","#2d5a8e"], badge: "PETS OK", badgeColor: "#16a34a" },
+    { id:"pf1", title: "Yankin Pet Garden Condo", titleMy: "ရန်ကင်း တိရစ္ဆာန်ချစ်သူ", sub: "Yankin · Dog Park 2 min", subMy: "ရန်ကင်း · ၂ မိနစ်", price: isBuy ? "720 Lakh" : "5 Lakh/mo", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", gradient: ["#166534","#15803d"], badge: "PETS OK", badgeColor: "#16a34a" },
+    { id:"pf2", title: "Hlaing Green Condo", titleMy: "လှိုင်း အစိမ်းရောင် ကွန်ဒို", sub: "Hlaing · Near Vet", subMy: "လှိုင်း · တိရစ္ဆာန်ဆေးနီး", price: isBuy ? "850 Lakh" : "6 Lakh/mo", priceLabel: isBuy ? "Condo · For Sale" : "Condo · For Rent", gradient: ["#065f46","#047857"], badge: "PETS OK", badgeColor: "#16a34a" },
+    { id:"pf3", title: "Tamwe Garden Home", titleMy: "တာမွေ ဥယျာဉ်အိမ်", sub: "Tamwe · Private Garden", subMy: "တာမွေ · ကိုယ်ပိုင်ဥယျာဉ်", price: isBuy ? "550 Lakh" : "4 Lakh/mo", priceLabel: isBuy ? "House · For Sale" : "House · For Rent", gradient: ["#1c4532","#166534"], badge: "GARDEN", badgeColor: "#15803d" },
+    { id:"pf4", title: "Mayangone Pet Apt", titleMy: "မရမ်းကုန်း တိရစ္ဆာန်နှင့်", sub: "Mayangone · Ground Floor", subMy: "မရမ်းကုန်း · မြေညီ", price: isBuy ? "620 Lakh" : "4.5 Lakh/mo", priceLabel: isBuy ? "Apt · For Sale" : "Apt · For Rent", gradient: ["#1e3a5f","#2d5a8e"], badge: "PETS OK", badgeColor: "#16a34a" },
   ];
 
   const luxury = [
-    { id:"lx1", title: "The Bahan Grand Penthouse", titleMy: "ဗဟန်း ဂရမ်းဒ် ပင်ထောင်", sub: "Bahan, Yangon", subMy: "ဗဟန်း၊ ရန်ကုန်", price: isBuy ? "18,000 Lakh" : "80 Lakh/mo", priceMy: isBuy ? "သိန်း ၁၈,၀၀၀" : "၈၀ သိန်း/လ", priceLabel: isBuy ? "Penthouse · Freehold" : "Penthouse · Rent", priceLabelMy: isBuy ? "ပင်ထောင် · ပိုင်ဆိုင်မှု" : "ပင်ထောင် · ငှားရမ်း", gradient: ["#111d2b","#1e3a5f"], badge: "ULTRA LUXURY", badgeColor: "#7c3aed", beds: 5, baths: 4 },
-    { id:"lx2", title: "Sanchaung Sky Villa", titleMy: "စမ်းချောင်း Sky ဗီလာ", sub: "Sanchaung, Yangon", subMy: "စမ်းချောင်း၊ ရန်ကုန်", price: isBuy ? "12,000 Lakh" : "55 Lakh/mo", priceMy: isBuy ? "သိန်း ၁၂,၀၀၀" : "၅၅ သိန်း/လ", priceLabel: isBuy ? "Villa · Branded" : "Villa · Rent", priceLabelMy: isBuy ? "ဗီလာ · Branded" : "ဗီလာ · ငှားရမ်း", gradient: ["#78350f","#92400e"], badge: "BRANDED", badgeColor: gold, beds: 4, baths: 3 },
-    { id:"lx3", title: "Yankin Tower Penthouse", titleMy: "ရန်ကင်း တာဝါ ပင်ထောင်", sub: "Yankin, Yangon", subMy: "ရန်ကင်း၊ ရန်ကုန်", price: isBuy ? "9,500 Lakh" : "42 Lakh/mo", priceMy: isBuy ? "သိန်း ၉,၅၀၀" : "၄၂ သိန်း/လ", priceLabel: isBuy ? "Penthouse · City View" : "Penthouse · Rent", priceLabelMy: isBuy ? "ပင်ထောင် · မြို့မြင်ကွင်း" : "ပင်ထောင် · ငှားရမ်း", gradient: ["#1e3a5f","#0f2a4a"], badge: "PREMIUM", badgeColor: "#111d2b", beds: 3, baths: 3 },
-    { id:"lx4", title: "Inya Lake Estate", titleMy: "အင်းယားကန် အိမ်ရာ", sub: "Kamayut, Yangon", subMy: "ကမာရွတ်၊ ရန်ကုန်", price: isBuy ? "25,000 Lakh" : "110 Lakh/mo", priceMy: isBuy ? "သိန်း ၂၅,၀၀၀" : "၁၁၀ သိန်း/လ", priceLabel: isBuy ? "Estate · Lake View" : "Estate · Rent", priceLabelMy: isBuy ? "Estate · ကန်မြင်ကွင်း" : "Estate · ငှားရမ်း", gradient: ["#0c4a6e","#075985"], badge: "ESTATE", badgeColor: "#111d2b", beds: 6, baths: 5 },
+    { id:"lx1", title: "The Bahan Grand Penthouse", titleMy: "ဗဟန်း ဂရမ်းဒ် ပင်ထောင်", sub: "Bahan, Yangon", subMy: "ဗဟန်း၊ ရန်ကုန်", price: isBuy ? "18,000 Lakh" : "80 Lakh/mo", priceLabel: isBuy ? "Penthouse · Freehold" : "Penthouse · Rent", gradient: ["#111d2b","#1e3a5f"], badge: "ULTRA LUXURY", badgeColor: "#7c3aed", beds: 5, baths: 4 },
+    { id:"lx2", title: "Sanchaung Sky Villa", titleMy: "စမ်းချောင်း Sky ဗီလာ", sub: "Sanchaung, Yangon", subMy: "စမ်းချောင်း၊ ရန်ကုန်", price: isBuy ? "12,000 Lakh" : "55 Lakh/mo", priceLabel: isBuy ? "Villa · Branded" : "Villa · Rent", gradient: ["#78350f","#92400e"], badge: "BRANDED", badgeColor: gold, beds: 4, baths: 3 },
+    { id:"lx3", title: "Yankin Tower Penthouse", titleMy: "ရန်ကင်း တာဝါ ပင်ထောင်", sub: "Yankin, Yangon", subMy: "ရန်ကင်း၊ ရန်ကုန်", price: isBuy ? "9,500 Lakh" : "42 Lakh/mo", priceLabel: isBuy ? "Penthouse · City View" : "Penthouse · Rent", gradient: ["#1e3a5f","#0f2a4a"], badge: "PREMIUM", badgeColor: "#111d2b", beds: 3, baths: 3 },
+    { id:"lx4", title: "Inya Lake Estate", titleMy: "အင်းယားကန် အိမ်ရာ", sub: "Kamayut, Yangon", subMy: "ကမာရွတ်၊ ရန်ကုန်", price: isBuy ? "25,000 Lakh" : "110 Lakh/mo", priceLabel: isBuy ? "Estate · Lake View" : "Estate · Rent", gradient: ["#0c4a6e","#075985"], badge: "ESTATE", badgeColor: "#111d2b", beds: 6, baths: 5 },
   ];
 
   const resort = [
-    { id:"rv1", title: "Ngwe Saung Beach Villa", titleMy: "ငွေဆောင် ကမ်းခြေ ဗီလာ", sub: "Ngwe Saung Beach", subMy: "ငွေဆောင် ကမ်းခြေ", price: isBuy ? "5,000 Lakh" : "22 Lakh/mo", priceMy: isBuy ? "သိန်း ၅,၀၀၀" : "၂၂ သိန်း/လ", priceLabel: isBuy ? "Beachfront Villa" : "Beachfront · Rent", priceLabelMy: isBuy ? "ကမ်းနား ဗီလာ" : "ကမ်းနား · ငှားရမ်း", gradient: ["#065f46","#047857"], badge: "BEACHFRONT", badgeColor: "#0369a1" },
-    { id:"rv2", title: "Chaungtha Resort Villa", titleMy: "ချောင်းသာ ရီဆော့တ် ဗီလာ", sub: "Chaungtha Beach", subMy: "ချောင်းသာ ကမ်းခြေ", price: isBuy ? "3,500 Lakh" : "16 Lakh/mo", priceMy: isBuy ? "သိန်း ၃,၅၀၀" : "၁၆ သိန်း/လ", priceLabel: isBuy ? "Ocean View Villa" : "Ocean View · Rent", priceLabelMy: isBuy ? "သမုဒ္ဒရာ မြင်ကွင်း ဗီလာ" : "သမုဒ္ဒရာ မြင်ကွင်း · ငှားရမ်း", gradient: ["#0c4a6e","#075985"], badge: "SEA VIEW", badgeColor: "#0369a1" },
-    { id:"rv3", title: "Inle Lake Villa", titleMy: "အင်းလေး ကန် ဗီလာ", sub: "Inle Lake, Shan State", subMy: "အင်းလေးကန်၊ ရှမ်းပြည်နယ်", price: isBuy ? "2,800 Lakh" : "12 Lakh/mo", priceMy: isBuy ? "သိန်း ၂,၈၀၀" : "၁၂ သိန်း/လ", priceLabel: isBuy ? "Lake Villa" : "Lake Villa · Rent", priceLabelMy: isBuy ? "ကန်ဘေး ဗီလာ" : "ကန်ဘေး ဗီလာ · ငှားရမ်း", gradient: ["#166534","#15803d"], badge: "LAKE VIEW", badgeColor: "#15803d" },
-    { id:"rv4", title: "Bagan Heritage Villa", titleMy: "ပုဂံ မွေးမြူရာ ဗီလာ", sub: "Bagan, Mandalay Region", subMy: "ပုဂံ၊ မန္တလေးတိုင်း", price: isBuy ? "4,200 Lakh" : "18 Lakh/mo", priceMy: isBuy ? "သိန်း ၄,၂၀၀" : "၁၈ သိန်း/လ", priceLabel: isBuy ? "Heritage Villa" : "Heritage · Rent", priceLabelMy: isBuy ? "အမွေအနှစ် ဗီလာ" : "အမွေအနှစ် ဗီလာ · ငှားရမ်း", gradient: ["#78350f","#92400e"], badge: "HERITAGE", badgeColor: "#92400e" },
+    { id:"rv1", title: "Ngwe Saung Beach Villa", titleMy: "ငွေဆောင် ကမ်းခြေ ဗီလာ", sub: "Ngwe Saung Beach", subMy: "ငွေဆောင် ကမ်းခြေ", price: isBuy ? "5,000 Lakh" : "22 Lakh/mo", priceLabel: isBuy ? "Beachfront Villa" : "Beachfront · Rent", gradient: ["#065f46","#047857"], badge: "BEACHFRONT", badgeColor: "#0369a1" },
+    { id:"rv2", title: "Chaungtha Resort Villa", titleMy: "ချောင်းသာ ရီဆော့တ် ဗီလာ", sub: "Chaungtha Beach", subMy: "ချောင်းသာ ကမ်းခြေ", price: isBuy ? "3,500 Lakh" : "16 Lakh/mo", priceLabel: isBuy ? "Ocean View Villa" : "Ocean View · Rent", gradient: ["#0c4a6e","#075985"], badge: "SEA VIEW", badgeColor: "#0369a1" },
+    { id:"rv3", title: "Inle Lake Villa", titleMy: "အင်းလေး ကန် ဗီလာ", sub: "Inle Lake, Shan State", subMy: "အင်းလေးကန်၊ ရှမ်းပြည်နယ်", price: isBuy ? "2,800 Lakh" : "12 Lakh/mo", priceLabel: isBuy ? "Lake Villa" : "Lake Villa · Rent", gradient: ["#166534","#15803d"], badge: "LAKE VIEW", badgeColor: "#15803d" },
+    { id:"rv4", title: "Bagan Heritage Villa", titleMy: "ပုဂံ မွေးမြူရာ ဗီလာ", sub: "Bagan, Mandalay Region", subMy: "ပုဂံ၊ မန္တလေးတိုင်း", price: isBuy ? "4,200 Lakh" : "18 Lakh/mo", priceLabel: isBuy ? "Heritage Villa" : "Heritage · Rent", gradient: ["#78350f","#92400e"], badge: "HERITAGE", badgeColor: "#92400e" },
   ];
 
   const sustainable = [
-    { id:"su1", title: "Hlaing Eco Garden Condo", titleMy: "လှိုင်း Eco ဥယျာဉ် ကွန်ဒို", sub: "Hlaing · Solar + Garden", subMy: "လှိုင်း · နေရောင်ခြည် + ဥယျာဉ်", price: isBuy ? "580 Lakh" : "3.5 Lakh/mo", priceMy: isBuy ? "သိန်း ၅၈၀" : "၃.၅ သိန်း/လ", priceLabel: isBuy ? "Eco · Condo" : "Eco · Rent", priceLabelMy: isBuy ? "Eco · ကွန်ဒို" : "Eco · ငှားရမ်း", gradient: ["#166534","#15803d"], badge: "ECO", badgeColor: "#16a34a" },
-    { id:"su2", title: "Riverside Nature Home", titleMy: "မြစ်ဘေး သဘာဝ အိမ်", sub: "Hlaingthaya · Riverside", subMy: "လှိုင်သာယာ · မြစ်ဘေး", price: isBuy ? "420 Lakh" : "2.8 Lakh/mo", priceMy: isBuy ? "သိန်း ၄၂၀" : "၂.၈ သိန်း/လ", priceLabel: isBuy ? "House · Riverside" : "House · Rent", priceLabelMy: isBuy ? "အိမ် · မြစ်ဘေး" : "အိမ် · ငှားရမ်း", gradient: ["#0c4a6e","#075985"], badge: "RIVERSIDE", badgeColor: "#0369a1" },
-    { id:"su3", title: "Mayangone Green Villa", titleMy: "မရမ်းကုန်း အစိမ်းရောင် ဗီလာ", sub: "Mayangone · Garden Views", subMy: "မရမ်းကုန်း · ဥယျာဉ်မြင်ကွင်း", price: isBuy ? "5,500 Lakh" : "24 Lakh/mo", priceMy: isBuy ? "သိန်း ၅,၅၀၀" : "၂၄ သိန်း/လ", priceLabel: isBuy ? "Villa · Garden" : "Villa · Rent", priceLabelMy: isBuy ? "ဗီလာ · ဥယျာဉ်" : "ဗီလာ · ငှားရမ်း", gradient: ["#1c4532","#166534"], badge: "GARDEN", badgeColor: "#15803d" },
-    { id:"su4", title: "Insein Solar Home", titleMy: "အင်းစိန် နေရောင်ခြည် အိမ်", sub: "Insein · Solar Powered", subMy: "အင်းစိန် · နေရောင်ခြည်", price: isBuy ? "380 Lakh" : "2.2 Lakh/mo", priceMy: isBuy ? "သိန်း ၃၈၀" : "၂.၂ သိန်း/လ", priceLabel: isBuy ? "House · Solar" : "House · Rent", priceLabelMy: isBuy ? "အိမ် · နေရောင်ခြည်" : "အိမ် · ငှားရမ်း", gradient: ["#78350f","#b45309"], badge: "SOLAR", badgeColor: "#d97706" },
+    { id:"su1", title: "Hlaing Eco Garden Condo", titleMy: "လှိုင်း Eco ဥယျာဉ် ကွန်ဒို", sub: "Hlaing · Solar + Garden", subMy: "လှိုင်း · နေရောင်ခြည် + ဥယျာဉ်", price: isBuy ? "580 Lakh" : "3.5 Lakh/mo", priceLabel: isBuy ? "Eco · Condo" : "Eco · Rent", gradient: ["#166534","#15803d"], badge: "ECO", badgeColor: "#16a34a" },
+    { id:"su2", title: "Riverside Nature Home", titleMy: "မြစ်ဘေး သဘာဝ အိမ်", sub: "Hlaingthaya · Riverside", subMy: "လှိုင်သာယာ · မြစ်ဘေး", price: isBuy ? "420 Lakh" : "2.8 Lakh/mo", priceLabel: isBuy ? "House · Riverside" : "House · Rent", gradient: ["#0c4a6e","#075985"], badge: "RIVERSIDE", badgeColor: "#0369a1" },
+    { id:"su3", title: "Mayangone Green Villa", titleMy: "မရမ်းကုန်း အစိမ်းရောင် ဗီလာ", sub: "Mayangone · Garden Views", subMy: "မရမ်းကုန်း · ဥယျာဉ်မြင်ကွင်း", price: isBuy ? "5,500 Lakh" : "24 Lakh/mo", priceLabel: isBuy ? "Villa · Garden" : "Villa · Rent", gradient: ["#1c4532","#166534"], badge: "GARDEN", badgeColor: "#15803d" },
+    { id:"su4", title: "Insein Solar Home", titleMy: "အင်းစိန် နေရောင်ခြည် အိမ်", sub: "Insein · Solar Powered", subMy: "အင်းစိန် · နေရောင်ခြည်", price: isBuy ? "380 Lakh" : "2.2 Lakh/mo", priceLabel: isBuy ? "House · Solar" : "House · Rent", gradient: ["#78350f","#b45309"], badge: "SOLAR", badgeColor: "#d97706" },
   ];
 
   const handpicked = [
-    { id:"hp1", title: isBuy ? "Best Value in Yankin" : "Best Rental in Yankin", titleMy: isBuy ? "ရန်ကင်းတွင် အကောင်းဆုံးတန်ဖိုး" : "ရန်ကင်းတွင် အကောင်းဆုံးငှားရမ်းမှု", sub: lang === "my" ? "ရန်ကင်း · ၁၂၈ ခု" : "Yankin · 128 listings", subMy: "ရန်ကင်း · ၁၂၈ ခု", price: isBuy ? "From 800 Lakh" : "From 4 Lakh/mo", priceMy: isBuy ? "သိန်း ၈၀၀ မှ" : "၄ သိန်း/လ မှ", gradient: ["#1e3a5f","#2d5a8e"], badge: "TRENDING", badgeColor: "#dc2626" },
-    { id:"hp2", title: isBuy ? "Family Homes Near Schools" : "Family Rentals Near Schools", titleMy: isBuy ? "ကျောင်းနီး မိသားစုအိမ်" : "ကျောင်းနီး မိသားစုငှားရမ်းမှု", sub: lang === "my" ? "ဗဟန်း နှင့် ကမာရွတ် · ၈၉ ခု" : "Bahan & Kamayut · 89 listings", subMy: "ဗဟန်း နှင့် ကမာရွတ် · ၈၉ ခု", price: isBuy ? "From 1,200 Lakh" : "From 5 Lakh/mo", priceMy: isBuy ? "သိန်း ၁,၂၀၀ မှ" : "၅ သိန်း/လ မှ", gradient: ["#166534","#15803d"], badge: "FAMILY", badgeColor: "#16a34a" },
-    { id:"hp3", title: isBuy ? "CBD Investment Units" : "CBD Short-Term Rentals", titleMy: isBuy ? "CBD ရင်းနှီးမြှုပ်နှံမှု" : "CBD ငှားရမ်းမှု", sub: lang === "my" ? "ပဗေဒါ နှင့် လသာ · ၂၃၄ ခု" : "Pabedan & Latha · 234 listings", subMy: "ပဗေဒါ နှင့် လသာ · ၂၃၄ ခု", price: isBuy ? "From 500 Lakh" : "From 6 Lakh/mo", priceMy: isBuy ? "သိန်း ၅၀၀ မှ" : "၆ သိန်း/လ မှ", gradient: ["#111d2b","#1e3a5f"], badge: "WORK ZONE", badgeColor: "#111d2b" },
-    { id:"hp4", title: isBuy ? "Affordable First Homes" : "Budget-Friendly Rentals", titleMy: isBuy ? "စတင်ဝယ်ယူနိုင်သော အိမ်" : "ဈေးသင့်တင့်သော ငှားရမ်းမှု", sub: lang === "my" ? "တာမွေ နှင့် သာကေတ · ၃၁၂ ခု" : "Tamwe & Thaketa · 312 listings", subMy: "တာမွေ နှင့် သာကေတ · ၃၁၂ ခု", price: isBuy ? "From 200 Lakh" : "From 1.5 Lakh/mo", priceMy: isBuy ? "သိန်း ၂၀၀ မှ" : "၁.၅ သိန်း/လ မှ", gradient: ["#065f46","#047857"], badge: "AFFORDABLE", badgeColor: "#16a34a" },
+    { id:"hp1", title: isBuy ? "Best Value in Yankin" : "Best Rental in Yankin", titleMy: isBuy ? "ရန်ကင်းတွင် အကောင်းဆုံးတန်ဖိုး" : "ရန်ကင်းတွင် အကောင်းဆုံးငှားရမ်းမှု", sub: "Yankin · 128 listings", subMy: "ရန်ကင်း · ၁၂၈ ခု", price: isBuy ? "From 800 Lakh" : "From 4 Lakh/mo", gradient: ["#1e3a5f","#2d5a8e"], badge: "TRENDING", badgeColor: "#dc2626" },
+    { id:"hp2", title: isBuy ? "Family Homes Near Schools" : "Family Rentals Near Schools", titleMy: isBuy ? "ကျောင်းနီး မိသားစုအိမ်" : "ကျောင်းနီး မိသားစုငှားရမ်းမှု", sub: "Bahan & Kamayut · 89 listings", subMy: "ဗဟန်း နှင့် ကမာရွတ် · ၈၉ ခု", price: isBuy ? "From 1,200 Lakh" : "From 5 Lakh/mo", gradient: ["#166534","#15803d"], badge: "FAMILY", badgeColor: "#16a34a" },
+    { id:"hp3", title: isBuy ? "CBD Investment Units" : "CBD Short-Term Rentals", titleMy: isBuy ? "CBD ရင်းနှီးမြှုပ်နှံမှု" : "CBD ငှားရမ်းမှု", sub: "Pabedan & Latha · 234 listings", subMy: "ပဗေဒါ နှင့် လသာ · ၂၃၄ ခု", price: isBuy ? "From 500 Lakh" : "From 6 Lakh/mo", gradient: ["#111d2b","#1e3a5f"], badge: "WORK ZONE", badgeColor: "#111d2b" },
+    { id:"hp4", title: isBuy ? "Affordable First Homes" : "Budget-Friendly Rentals", titleMy: isBuy ? "စတင်ဝယ်ယူနိုင်သော အိမ်" : "ဈေးသင့်တင့်သော ငှားရမ်းမှု", sub: "Tamwe & Thaketa · 312 listings", subMy: "တာမွေ နှင့် သာကေတ · ၃၁၂ ခု", price: isBuy ? "From 200 Lakh" : "From 1.5 Lakh/mo", gradient: ["#065f46","#047857"], badge: "AFFORDABLE", badgeColor: "#16a34a" },
   ];
 
   return (
@@ -466,12 +479,12 @@ export default function HomePageSections({ lang, listingType, onPropertyClick, o
           lang={lang}
           onViewMore={() => {}}
         />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+        <div className="yume-card-grid">
           {[
-            { title: "Yangon Property Market Report Q1 2026", titleMy: "ရန်ကုန် ကဏ္ဍ Q1 2026", date: lang === "my" ? "မေ ၁၅၊ ၂၀၂၆" : "May 15, 2026", cat: "Market Report", catMy: "ကဏ္ဍ အစီရင်ခံ", top: "#111d2b" },
-            { title: "Top 5 Townships to Invest 2026", titleMy: "ရင်းနှီးမြှုပ်နှံမှု မြို့နယ် ထိပ်ဆုံး ၅", date: lang === "my" ? "မေ ၁၀၊ ၂၀၂၆" : "May 10, 2026", cat: "Investment", catMy: "ရင်းနှီးမြှုပ်နှံမှု", top: "#bd9468" },
-            { title: "New Condo Projects in Mandalay", titleMy: "မန္တလေး ကွန်ဒို စီမံကိန်းသစ်", date: lang === "my" ? "မေ ၅၊ ၂၀၂၆" : "May 5, 2026", cat: "New Launch", catMy: "စီမံကိန်းသစ်", top: "#166534" },
-            { title: "Rental Yield Guide: Yangon 2026", titleMy: "ငှားရမ်းနှုန်း လမ်းညွှန် ၂၀၂၆", date: lang === "my" ? "မေ ၁၊ ၂၀၂၆" : "May 1, 2026", cat: "Rental Guide", catMy: "ငှားရမ်းမှု လမ်းညွှန်", top: "#581c87" },
+            { title: "Yangon Property Market Report Q1 2026", titleMy: "ရန်ကုန် ကဏ္ဍ Q1 2026", date: "May 15, 2026", cat: "Market Report", catMy: "ကဏ္ဍ အစီရင်ခံ", top: "#111d2b" },
+            { title: "Top 5 Townships to Invest 2026", titleMy: "ရင်းနှီးမြှုပ်နှံမှု မြို့နယ် ထိပ်ဆုံး ၅", date: "May 10, 2026", cat: "Investment", catMy: "ရင်းနှီးမြှုပ်နှံမှု", top: "#bd9468" },
+            { title: "New Condo Projects in Mandalay", titleMy: "မန္တလေး ကွန်ဒို စီမံကိန်းသစ်", date: "May 5, 2026", cat: "New Launch", catMy: "စီမံကိန်းသစ်", top: "#166534" },
+            { title: "Rental Yield Guide: Yangon 2026", titleMy: "ငှားရမ်းနှုန်း လမ်းညွှန် ၂၀၂၆", date: "May 1, 2026", cat: "Rental Guide", catMy: "ငှားရမ်းမှု လမ်းညွှန်", top: "#581c87" },
           ].map((n, i) => (
             <div key={i} style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #111d2b", borderTop: `3px solid ${n.top}`, cursor: "pointer", background: "#ffffff", transition: "all 0.18s", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; }}
