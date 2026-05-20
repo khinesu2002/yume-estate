@@ -147,26 +147,11 @@ function PropCard({ gradient, badge, badgeColor, title, titleMy, sub, subMy, pri
 // ── 4-card grid — responsive: 2 cols on mobile, 4 on desktop ──
 function CardGrid({ items, lang, listingType, onPropertyClick }: { items: any[]; lang: Lang; listingType: string; onPropertyClick?: (id: string) => void }) {
   return (
-    <>
-      <style>{`
-        .yume-card-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 16px;
-        }
-        @media (max-width: 768px) {
-          .yume-card-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-          }
-        }
-      `}</style>
-      <div className="yume-card-grid">
+    <div className="yume-card-grid">
         {items.slice(0, 4).map((item, i) => (
           <PropCard key={i} {...item} lang={lang} listingType={listingType} onClick={() => onPropertyClick?.(item.id || String(i))} />
         ))}
       </div>
-    </>
   );
 }
 
@@ -269,21 +254,14 @@ export default function HomePageSections({ lang, listingType, onPropertyClick, o
           submy="ရန်ကုန်တွင် သင်၏ အကောင်းဆုံး ရပ်ကွက် ရှာပါ"
           lang={lang}
         />
-        <>
-          <style>{`
-            .yume-loc-grid {
-              display: grid;
-              grid-template-columns: repeat(6, 1fr);
-              gap: 12px;
-            }
-            @media (max-width: 768px) {
-              .yume-loc-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-              }
-            }
-          `}</style>
-          <div className="yume-loc-grid">
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(6, 1fr)",
+          gap: "12px",
+          width: "100%",
+          overflowX: "hidden",
+        }}
+        className="yume-loc-grid">
           {[
             { en: "Universities", my: "တက္ကသိုလ်", count: 284, top: "#111d2b" },
             { en: "Int'l Schools", my: "နိုင်ငံတကာ ကျောင်း", count: 156, top: "#166534" },
@@ -320,8 +298,7 @@ export default function HomePageSections({ lang, listingType, onPropertyClick, o
               </button>
             );
           })}
-          </div>
-        </>
+        </div>
       </Section>
 
       {/* ══ 3. FIND BY LIFESTYLE ══ */}
@@ -494,7 +471,7 @@ export default function HomePageSections({ lang, listingType, onPropertyClick, o
           lang={lang}
           onViewMore={() => {}}
         />
-        <div className="yume-card-grid">
+        <div className="yume-card-grid" style={{ width: "100%", overflowX: "hidden" }}>
           {[
             { title: "Yangon Property Market Report Q1 2026", titleMy: "ရန်ကုန် ကဏ္ဍ Q1 2026", date: "May 15, 2026", cat: "Market Report", catMy: "ကဏ္ဍ အစီရင်ခံ", top: "#111d2b" },
             { title: "Top 5 Townships to Invest 2026", titleMy: "ရင်းနှီးမြှုပ်နှံမှု မြို့နယ် ထိပ်ဆုံး ၅", date: "May 10, 2026", cat: "Investment", catMy: "ရင်းနှီးမြှုပ်နှံမှု", top: "#bd9468" },
