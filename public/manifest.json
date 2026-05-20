@@ -1,0 +1,16 @@
+{
+  "name": "Dream Property Inventory",
+  "short_name": "Dream Inventory",
+  "description": "Mobile property inventory for real estate agents in Myanmar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#1f3a35",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

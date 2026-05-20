@@ -1,0 +1,1572 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import HomePageSections from "./HomePageSections";
+import CategoryPage from "./CategoryPage";
+
+type Lang = "en" | "my";
+
+const txt = {
+  en: {
+    agentLogin: "Agent Login",
+    tagline: "PREMIUM PROPERTIES · TRUSTED AGENTS",
+    hero1: "Find Your Dream Property",
+    hero2: "with Trusted Agents",
+    hero3: "Myanmar's most trusted real estate platform",
+    searchPlaceholder: "Search by township, street, or property code...",
+    forSaleRent: "Buy & Rent",
+    forSale: "Buy",
+    forRent: "Rent",
+    allTypes: "All Types",
+    anyPrice: "Any Price",
+    anyBeds: "Any Beds",
+    bed1: "1+ Bed",
+    bed2: "2+ Beds",
+    bed3: "3+ Beds",
+    bed4: "4+ Beds",
+    propertiesFound: "properties found",
+    sortBy: "Sort by",
+    newest: "Newest",
+    priceLow: "Price: Low to High",
+    priceHigh: "Price: High to Low",
+    featured: "FEATURED",
+    new: "NEW",
+    forSaleBadge: "FOR SALE",
+    forRentBadge: "FOR RENT",
+    bed: "bed",
+    bath: "bath",
+    sqft: "sqft",
+    viewDetails: "View Details",
+    contactAgent: "Contact Agent",
+    perMonth: "/mo",
+    noProperties: "No properties match your search",
+    noPropertiesSub: "Try adjusting your filters",
+    clearFilters: "Clear all filters",
+    // Detail modal
+    overview: "Overview",
+    description: "Description",
+    details: "Property Details",
+    propertyType: "Property Type",
+    listingType: "Listing Type",
+    floorArea: "Floor Area",
+    bedrooms: "Bedrooms",
+    bathrooms: "Bathrooms",
+    location: "Location",
+    postedBy: "Posted by",
+    verifiedAgent: "Verified Agent",
+    unlockContact: "Unlock Agent Contact",
+    unlockHint: "Enter your details to see the agent's phone number. We'll also send you matching properties.",
+    yourName: "Full Name",
+    yourPhone: "Phone Number",
+    yourNamePlaceholder: "e.g. Ko Aung",
+    yourPhonePlaceholder: "e.g. 09-123456789",
+    getContact: "Get Agent Contact →",
+    thankYouTitle: "Contact Unlocked!",
+    thankYouMsg: "Thank you! The agent will reach out to you soon.",
+    agentPhone: "Agent's Phone",
+    callNow: "Call Now",
+    priceRange0: "Under 500 Lakh",
+    priceRange1: "500 - 2,000 Lakh",
+    priceRange2: "2,000 - 5,000 Lakh",
+    priceRange3: "5,000 - 10,000 Lakh",
+    priceRange4: "Above 10,000 Lakh",
+    rentRange0: "Under 3 Lakh/mo",
+    rentRange1: "3 - 6 Lakh/mo",
+    rentRange2: "6 - 10 Lakh/mo",
+    rentRange3: "Above 10 Lakh/mo",
+    mapView: "Map View",
+    listView: "List View",
+    share: "Share",
+    save: "Save",
+    report: "Report",
+    close: "Close",
+  },
+  my: {
+    agentLogin: "အေးဂျင့် ဝင်ရောက်ရန်",
+    tagline: "အဆင့်မြင့် အိမ်ခြံမြေ · ယုံကြည်ရသော အေးဂျင့်များ",
+    hero1: "သင်၏ အိပ်မက်အိမ်ကို ရှာဖွေပါ",
+    hero2: "ယုံကြည်ရသော အေးဂျင့်များနှင့်",
+    hero3: "မြန်မာနိုင်ငံ၏ အယုံကြည်ရဆုံး အိမ်ခြံမြေ ပလက်ဖောင်း",
+    searchPlaceholder: "မြို့နယ်၊ လမ်း သို့မဟုတ် ကုဒ်ဖြင့် ရှာပါ...",
+    forSaleRent: "ဝယ်ရန် & ငှားရန်",
+    forSale: "ဝယ်ရန်",
+    forRent: "ငှားရန်",
+    allTypes: "အမျိုးအစားအားလုံး",
+    anyPrice: "ဈေးနှုန်း မရွေး",
+    anyBeds: "အိပ်ခန်း မရွေး",
+    bed1: "၁+ အိပ်ခန်း",
+    bed2: "၂+ အိပ်ခန်း",
+    bed3: "၃+ အိပ်ခန်း",
+    bed4: "၄+ အိပ်ခန်း",
+    propertiesFound: "အိမ်ခြံမြေ တွေ့ရှိသည်",
+    sortBy: "စီရင်ရန်",
+    newest: "အသစ်ဆုံး",
+    priceLow: "စျေးနှုန်း: နိမ့်မှ မြင့်သို့",
+    priceHigh: "စျေးနှုန်း: မြင့်မှ နိမ့်သို့",
+    featured: "အထူးဖော်ပြ",
+    new: "အသစ်",
+    forSaleBadge: "ရောင်းရန်",
+    forRentBadge: "ငှားရန်",
+    bed: "အိပ်ခန်း",
+    bath: "ရေချိုးခန်း",
+    sqft: "စတုရန်းပေ",
+    viewDetails: "အသေးစိတ် ကြည့်ရန်",
+    contactAgent: "အေးဂျင့်ထံ ဆက်သွယ်ရန်",
+    perMonth: "/လ",
+    noProperties: "သင်၏ ရှာဖွေမှုနှင့် ကိုက်ညီသော အိမ်ခြံမြေ မတွေ့ပါ",
+    noPropertiesSub: "စစ်ထုတ်မှုများကို ချိန်ညှိကြည့်ပါ",
+    clearFilters: "စစ်ထုတ်မှုများ ရှင်းပါ",
+    overview: "အကျဉ်းချုပ်",
+    description: "ဖော်ပြချက်",
+    details: "အိမ်ခြံမြေ အသေးစိတ်",
+    propertyType: "အမျိုးအစား",
+    listingType: "စာရင်းတင်မှု",
+    floorArea: "ကြမ်းပြင် ဧရိယာ",
+    bedrooms: "အိပ်ခန်း",
+    bathrooms: "ရေချိုးခန်း",
+    location: "တည်နေရာ",
+    postedBy: "တင်သွင်းသူ",
+    verifiedAgent: "အတည်ပြုပြီး အေးဂျင့်",
+    unlockContact: "အေးဂျင့် ဆက်သွယ်ရေး ဖွင့်ရန်",
+    unlockHint: "အေးဂျင့်၏ ဖုန်းနံပါတ်ကို ကြည့်ရှုရန် သင်၏ အချက်အလက်ထည့်ပါ။",
+    yourName: "အမည်",
+    yourPhone: "ဖုန်းနံပါတ်",
+    yourNamePlaceholder: "ဥပမာ ကိုအောင်",
+    yourPhonePlaceholder: "ဥပမာ ၀၉-၁၂၃၄၅၆၇၈၉",
+    getContact: "အေးဂျင့် ဆက်သွယ်ရေး ရယူရန် →",
+    thankYouTitle: "ဆက်သွယ်ရေး ဖွင့်ပြီး!",
+    thankYouMsg: "ကျေးဇူးတင်ပါသည်! အေးဂျင့်မှ မကြာမီ ဆက်သွယ်ပေးမည်။",
+    agentPhone: "အေးဂျင့် ဖုန်း",
+    callNow: "ခေါ်ဆိုရန်",
+    priceRange0: "၅၀၀ သိန်းအောက်",
+    priceRange1: "၅၀၀ - ၂,၀၀၀ သိန်း",
+    priceRange2: "၂,၀၀၀ - ၅,၀၀၀ သိန်း",
+    priceRange3: "၅,၀၀၀ - ၁၀,၀၀၀ သိန်း",
+    priceRange4: "၁၀,၀၀၀ သိန်းအထက်",
+    rentRange0: "သိန်း ၃ အောက်/လ",
+    rentRange1: "သိန်း ၃ - ၆/လ",
+    rentRange2: "သိန်း ၆ - ၁၀/လ",
+    rentRange3: "သိန်း ၁၀ အထက်/လ",
+    mapView: "မြေပုံ",
+    listView: "စာရင်း",
+    share: "မျှဝေ",
+    save: "သိမ်းဆည်း",
+    report: "တိုင်ကြားရန်",
+    close: "ပိတ်ရန်",
+  },
+};
+
+interface Property {
+  id: string;
+  code: string;
+  title: string;
+  titleMy: string;
+  description: string;
+  descriptionMy: string;
+  location: string;
+  township: string;
+  type: string;
+  listing: "sale" | "rent";
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  agentName: string;
+  agentPhone: string;
+  agentAvatar: string;
+  featured: boolean;
+  isNew: boolean;
+  images: string[];
+  floor?: number;
+  totalFloors?: number;
+}
+
+const PROPERTIES: Property[] = [
+  {
+    id: "1", code: "YME-001",
+    title: "Luxury Condo with City View in Yankin",
+    titleMy: "ရန်ကင်း၌ မြို့ပြမြင်ကွင်းနှင့် သုခချမ်းသာ ကွန်ဒို",
+    description: "A stunning modern condominium in the heart of Yankin township. Features floor-to-ceiling windows with breathtaking city views, premium finishes throughout, and access to world-class amenities including pool, gym, and 24/7 security.",
+    descriptionMy: "ရန်ကင်းမြို့နယ်၏ အလယ်ဗဟိုတွင် ရှိသော ခေတ်မီ ကွန်ဒိုတစ်ခု ဖြစ်သည်။ မြို့ပြမြင်ကွင်းနှင့် ဝေးလံသော ပြတင်းပေါက်များ၊ ကျဆင်းကွင်း၊ ခန်းမ နှင့် လုံခြုံရေး ၂၄/၇ ပါဝင်သည်။",
+    location: "Yankin Township, Yangon", township: "Yankin",
+    type: "Condo", listing: "sale", price: 450000000,
+    bedrooms: 3, bathrooms: 2, area: 1450,
+    agentName: "Ko Aung Zaw", agentPhone: "09-123456789", agentAvatar: "AZ",
+    featured: true, isNew: false,
+    images: ["#1a2e45", "#2d4a6e", "#1e3a5f"],
+    floor: 15, totalFloors: 25,
+  },
+  {
+    id: "2", code: "YME-002",
+    title: "Spacious Family Apartment in Bahan",
+    titleMy: "ဗဟန်း၌ မိသားစုအတွက် ကျယ်ဝန်းသော အပါတ်မန့်",
+    description: "Perfect for families, this bright and airy apartment is located in the prestigious Bahan township. Walking distance to international schools, hospitals, and shopping centers.",
+    descriptionMy: "မိသားစုများအတွက် အကောင်းဆုံး ဖြစ်သော ဤ အပါတ်မန့်သည် နာမည်ကြီး ဗဟန်းမြို့နယ်တွင် တည်ရှိသည်။ နိုင်ငံတကာကျောင်းများ၊ ဆေးရုံများနှင့် ဈေးများသို့ လမ်းလျှောက်သွားနိုင်သည်။",
+    location: "Bahan Township, Yangon", township: "Bahan",
+    type: "Apartment", listing: "rent", price: 1200000,
+    bedrooms: 3, bathrooms: 2, area: 1800,
+    agentName: "Ma Thida Win", agentPhone: "09-987654321", agentAvatar: "TW",
+    featured: true, isNew: true,
+    images: ["#2d4a6e", "#1a2e45", "#3d5a7e"],
+  },
+  {
+    id: "3", code: "YME-003",
+    title: "Modern Studio in Kamayut",
+    titleMy: "ကမာရွတ်၌ ခေတ်မီ စတူဒီယို",
+    description: "Ideal for young professionals and students. This compact but well-designed studio apartment is in the vibrant Kamayut area, close to universities and cafes.",
+    descriptionMy: "လူငယ်များနှင့် ကျောင်းသားများအတွက် သင့်တော်သည်။ ကမာရွတ်တွင် တည်ရှိပြီး တက္ကသိုလ်များနှင့် ကဖေးများနှင့် နီးကပ်သည်။",
+    location: "Kamayut Township, Yangon", township: "Kamayut",
+    type: "Studio", listing: "rent", price: 450000,
+    bedrooms: 1, bathrooms: 1, area: 550,
+    agentName: "Ko Aung Zaw", agentPhone: "09-123456789", agentAvatar: "AZ",
+    featured: false, isNew: true,
+    images: ["#1e3a5f", "#2d4a6e", "#1a2e45"],
+  },
+  {
+    id: "4", code: "YME-004",
+    title: "Executive Penthouse in Sanchaung",
+    titleMy: "စမ်းချောင်း၌ အမှုဆောင် ပင်ထောင်",
+    description: "Rare penthouse opportunity in the highly sought-after Sanchaung township. Private rooftop terrace, panoramic views, and premium fittings throughout.",
+    descriptionMy: "စမ်းချောင်းမြို့နယ်တွင် ရှားပါးသော ပင်ထောင် အခွင့်အရေး။ ကိုယ်ပိုင် ခေါင်မိုးတာရတ်၊ ပတ်ဝန်းကျင် မြင်ကွင်းများ နှင့် အဆင့်မြင့် ပစ္စည်းများ ပါဝင်သည်။",
+    location: "Sanchaung Township, Yangon", township: "Sanchaung",
+    type: "Penthouse", listing: "sale", price: 1200000000,
+    bedrooms: 4, bathrooms: 3, area: 3200,
+    agentName: "Daw Khin Myo", agentPhone: "09-456789012", agentAvatar: "KM",
+    featured: true, isNew: false,
+    images: ["#0d1f33", "#1a2e45", "#2d4a6e"],
+    floor: 30, totalFloors: 30,
+  },
+  {
+    id: "5", code: "YME-005",
+    title: "Cozy 2BR Apartment in Tamwe",
+    titleMy: "တာမွေ၌ သက်တောင့်သက်သာသော ၂ အိပ်ခန်း အပါတ်မန့်",
+    description: "Affordable and well-maintained apartment in Tamwe. Great transport links and within walking distance of local markets and restaurants.",
+    descriptionMy: "တာမွေတွင် တတ်နိုင်သော ဈေးနှင့် ကောင်းစွာ ထိန်းသိမ်းထားသော အပါတ်မန့်။ ကောင်းမွန်သော သယ်ယူပို့ဆောင်ရေး ချိတ်ဆက်မှုများနှင့် ဈေးများ၊ စားသောက်ဆိုင်များ အနီးတွင် တည်ရှိသည်။",
+    location: "Tamwe Township, Yangon", township: "Tamwe",
+    type: "Apartment", listing: "rent", price: 600000,
+    bedrooms: 2, bathrooms: 1, area: 900,
+    agentName: "Ma Thida Win", agentPhone: "09-987654321", agentAvatar: "TW",
+    featured: false, isNew: false,
+    images: ["#2d4a6e", "#1a2e45", "#3d5a7e"],
+  },
+  {
+    id: "6", code: "YME-006",
+    title: "Investment Condo in Hlaing",
+    titleMy: "လှိုင်း၌ ရင်းနှီးမြှုပ်နှံမှု ကွန်ဒို",
+    description: "High-yield investment property in the fast-developing Hlaing township. Excellent rental potential with modern amenities.",
+    descriptionMy: "မြန်မာနိုင်ငံ၌ လျင်မြန်စွာ ဖွံ့ဖြိုးနေသော လှိုင်းမြို့နယ်တွင် အမြတ်အစွန်းများသော ရင်းနှီးမြှုပ်နှံမှု အိမ်ခြံမြေ။",
+    location: "Hlaing Township, Yangon", township: "Hlaing",
+    type: "Condo", listing: "sale", price: 280000000,
+    bedrooms: 2, bathrooms: 1, area: 980,
+    agentName: "Daw Khin Myo", agentPhone: "09-456789012", agentAvatar: "KM",
+    featured: false, isNew: true,
+    images: ["#1a2e45", "#0d1f33", "#2d4a6e"],
+    floor: 8, totalFloors: 20,
+  },
+];
+
+function formatPrice(price: number, listing: string, lang: Lang) {
+  const mo = lang === "my" ? "/လ" : "/mo";
+  const lakh = lang === "my" ? "သိန်း ကျပ်" : "Lakh Kyats";
+  const lakhShort = lang === "my" ? "သိန်း" : "Lakh";
+  if (listing === "rent") {
+    const lakhVal = price / 100000;
+    if (lakhVal >= 1) return `${lakhVal % 1 === 0 ? lakhVal.toFixed(0) : lakhVal.toFixed(1)} ${lakhShort} Ks${mo}`;
+    return `${(price / 1000).toFixed(0)}K Ks${mo}`;
+  }
+  const lakhVal = price / 100000;
+  return `${lakhVal % 1 === 0 ? lakhVal.toLocaleString() : lakhVal.toFixed(1)} ${lakh}`;
+}
+
+const gold = "#bd9468";
+const navy = "#111d2b";
+const cream = "#f5f0e8";
+const white = "#ffffff";
+const darkNavy = "#1a2e45";
+const midNavy = "#2d4a6e";
+
+// ── Myanmar Regions & Townships ──
+const REGIONS: Record<string, { en: string; my: string; townships: { en: string; my: string }[] }> = {
+  yangon: {
+    en: "Yangon Region", my: "ရန်ကုန်တိုင်းဒေသကြီး",
+    townships: [
+      { en: "Yankin", my: "ရန်ကင်း" }, { en: "Bahan", my: "ဗဟန်း" },
+      { en: "Kamayut", my: "ကမာရွတ်" }, { en: "Sanchaung", my: "စမ်းချောင်း" },
+      { en: "Hlaing", my: "လှိုင်" }, { en: "Tamwe", my: "တာမွေ" },
+      { en: "Mayangone", my: "မရမ်းကုန်း" }, { en: "Insein", my: "အင်းစိန်" },
+      { en: "North Dagon", my: "မြောက်ဒဂုံ" }, { en: "South Dagon", my: "တောင်ဒဂုံ" },
+      { en: "North Okkalapa", my: "မြောက်ဥက္ကလာပ" }, { en: "South Okkalapa", my: "တောင်ဥက္ကလာပ" },
+      { en: "Thingangyun", my: "သင်္ကန်းကျွန်း" }, { en: "Thaketa", my: "သာကေတ" },
+      { en: "Dawbon", my: "ဒေါပုံ" }, { en: "Pabedan", my: "ပဗေဒါ" },
+      { en: "Lanmadaw", my: "လမ်းမတော်" }, { en: "Latha", my: "လသာ" },
+      { en: "Mingaladon", my: "မင်္ဂလာဒုံ" }, { en: "Hlaingtharya", my: "လှိုင်သာယာ" },
+    ],
+  },
+  mandalay: {
+    en: "Mandalay Region", my: "မန္တလေးတိုင်းဒေသကြီး",
+    townships: [
+      { en: "Aungmyethazan", my: "အောင်မြေသာဇံ" }, { en: "Chanayethazan", my: "ချမ်းအေးသာဇံ" },
+      { en: "Chanmyathazi", my: "ချမ်းမြသာစည်" }, { en: "Mahaaungmye", my: "မဟာအောင်မြေ" },
+      { en: "Patheingyi", my: "ပတ်တိုင်းကြီး" }, { en: "Pyigyitagon", my: "ပြည်ကြီးတံခွန်" },
+      { en: "Amarapura", my: "အမရပူရ" }, { en: "Pyinoolwin", my: "ပြင်ဦးလွင်" },
+    ],
+  },
+  naypyidaw: {
+    en: "Naypyidaw Union Territory", my: "နေပြည်တော်",
+    townships: [
+      { en: "Zabuthiri", my: "ဇဗ္ဗူသီရိ" }, { en: "Dekkhinathiri", my: "ဒက္ခိဏသီရိ" },
+      { en: "Pobbathiri", my: "ပုပ္ပသီရိ" }, { en: "Ottarathiri", my: "ဥတ္တရသီရိ" },
+    ],
+  },
+  bago: {
+    en: "Bago Region", my: "ပဲခူးတိုင်းဒေသကြီး",
+    townships: [
+      { en: "Bago", my: "ပဲခူး" }, { en: "Taungoo", my: "တောင်ငူ" },
+      { en: "Pyay", my: "ပြည်" }, { en: "Thayawady", my: "သာယာဝတီ" },
+    ],
+  },
+  sagaing: {
+    en: "Sagaing Region", my: "စစ်ကိုင်းတိုင်းဒေသကြီး",
+    townships: [
+      { en: "Sagaing", my: "စစ်ကိုင်း" }, { en: "Monywa", my: "မုံရွာ" },
+      { en: "Shwebo", my: "ရွှေဘို" },
+    ],
+  },
+};
+
+// ── Sample Agent Directory Data ──
+const AGENTS = [
+  {
+    id: "A1", name: "Ko Aung Zaw", nameMy: "ကိုအောင်ဇော်",
+    avatar: "AZ", agency: "Aung Zaw Real Estate", agencyMy: "အောင်ဇော် အိမ်ခြံမြေ",
+    phone: "09-123456789", region: "yangon", township: "Yankin",
+    specializations: ["Condo", "Apartment"], specializationsMy: ["ကွန်ဒို", "အပါတ်မန့်"],
+    verified: true, featured: true,
+    activeListings: 18, totalSold: 42, responseTime: "< 1 hour",
+    rating: 4.8, reviews: 23,
+    bio: "10+ years experience in Yangon property market. Specialist in premium condos and apartments in Yankin, Bahan and Kamayut townships.",
+    bioMy: "ရန်ကုန် အိမ်ခြံမြေ ကဏ္ဍတွင် အတွေ့အကြုံ ၁၀ နှစ်ကျော်ရှိသည်။ ရန်ကင်း၊ ဗဟန်း နှင့် ကမာရွတ်မြို့နယ်တွင် ကွန်ဒိုနှင့် အပါတ်မန့် အထူးကျွမ်းကျင်သည်။",
+  },
+  {
+    id: "A2", name: "Ma Thida Win", nameMy: "မသီတာဝင်း",
+    avatar: "TW", agency: "Thida Win Properties", agencyMy: "သီတာဝင်း အိမ်ခြံမြေ",
+    phone: "09-987654321", region: "yangon", township: "Bahan",
+    specializations: ["House", "Land"], specializationsMy: ["အိမ်", "မြေ"],
+    verified: true, featured: true,
+    activeListings: 12, totalSold: 67, responseTime: "< 2 hours",
+    rating: 4.9, reviews: 41,
+    bio: "Trusted agent with 15 years in Bahan and Sanchaung. Expert in landed houses and prime land plots.",
+    bioMy: "ဗဟန်းနှင့် စမ်းချောင်းတွင် နှစ် ၁၅ ကျော် ယုံကြည်ရသော အေးဂျင့်။ မြေကွက်နှင့် အိမ် ဝယ်ရောင်းကိစ္စတွင် အထူးကျွမ်းကျင်သည်။",
+  },
+  {
+    id: "A3", name: "Daw Khin Myo", nameMy: "ဒေါ်ခင်မျိုး",
+    avatar: "KM", agency: "KM Luxury Real Estate", agencyMy: "KM ဇိမ်ခံ အိမ်ခြံမြေ",
+    phone: "09-456789012", region: "yangon", township: "Sanchaung",
+    specializations: ["Penthouse", "Condo"], specializationsMy: ["ပင်ထောင်", "ကွန်ဒို"],
+    verified: true, featured: false,
+    activeListings: 8, totalSold: 29, responseTime: "< 3 hours",
+    rating: 4.7, reviews: 15,
+    bio: "Specialist in luxury and premium properties across Yangon. Dedicated to matching clients with their dream homes.",
+    bioMy: "ရန်ကုန်တွင် ဇိမ်ခံ အိမ်ခြံမြေ အထူးကျွမ်းကျင်သည်။ ဖောက်သည်များအတွက် အကောင်းဆုံး အိမ်ကို ရှာဖွေပေးရန် အမြဲ အသင့်ရှိသည်။",
+  },
+];
+
+interface PublicPropertyPageProps {
+  onAgentLoginClick?: () => void;
+}
+
+export default function PublicPropertyPage({ onAgentLoginClick }: PublicPropertyPageProps) {
+  const [lang, setLang] = useState<Lang>("my");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // ── Category definitions ──
+  const CATEGORIES: Record<string, any> = {
+    latestProjects: { id: "latestProjects", icon: "", titleEn: "Latest Projects", titleMy: "စီမံကိန်းသစ်များ", descEn: "Brand new developments launching across Myanmar", descMy: "မြန်မာနိုင်ငံတစ်ဝှမ်း ထွက်ပေါ်လာသော စီမံကိန်းသစ်များ", filter: (p: any) => p.isNew || p.featured },
+    nearUniversities: { id: "nearUniversities", icon: "", titleEn: "Near Universities & Schools", titleMy: "တက္ကသိုလ်နှင့် ကျောင်းနီးသော အိမ်ခြံမြေ", descEn: "Properties near top educational institutions", descMy: "ကျောင်းနှင့် တက္ကသိုလ်နီးသော အိမ်ရာများ", filter: (p: any) => ["Kamayut", "Hlaing", "Bahan", "Mayangone", "Tamwe"].includes(p.township) },
+    petFriendly: { id: "petFriendly", icon: "", titleEn: "Pet-Friendly Properties", titleMy: "တိရစ္ဆာန်ချစ်သူများအတွက် အိမ်ရာများ", descEn: "Homes that welcome your furry family members", descMy: "သင်၏ တိရစ္ဆာန်မိသားစုကို ကြိုဆိုသော အိမ်ရာများ", filter: (p: any) => p.petFriendly || ["Yankin", "Hlaing", "Tamwe", "Insein", "Mayangone"].includes(p.township) },
+    luxury: { id: "luxury", icon: "", titleEn: "Luxury Estates & Branded Residences", titleMy: "ဇိမ်ခံ အိမ်ရာများနှင့် အမှတ်တံဆိပ် နေထိုင်မှုများ", descEn: "Myanmar's most exclusive premium addresses", descMy: "မြန်မာ၏ အထူးသီးသန့် ဇိမ်ခံ နေရပ်များ", filter: (p: any) => p.price >= 500000000 || p.type === "Penthouse" || ["Bahan", "Sanchaung"].includes(p.township) },
+    resortVillas: { id: "resortVillas", icon: "", titleEn: "Resort Villas", titleMy: "ရီဆော့တ် ဗီလာများ", descEn: "Vacation-style living in Myanmar's finest destinations", descMy: "မြန်မာ၏ အကောင်းဆုံး ကျန်းမာနားနေမှု", filter: (p: any) => p.type === "Villa" || p.type === "Resort" },
+    sustainable: { id: "sustainable", icon: "", titleEn: "Sustainable Living", titleMy: "သဘာဝပတ်ဝန်းကျင်နှင့် ညီညွတ်သော နေထိုင်မှု", descEn: "Eco-friendly homes with green spaces", descMy: "သဘာဝပတ်ဝန်းကျင်ကို ချစ်မြတ်နိုးသူများအတွက် နေအိမ်များ", filter: (p: any) => p.sustainable || ["Hlaingtharya", "Insein"].includes(p.township) },
+    handpicked: { id: "handpicked", icon: "", titleEn: "Handpicked For You", titleMy: "သင့်အတွက် ကျွမ်းကျင်စွာ ရွေးချယ်ထားသည်", descEn: "Curated selections based on what buyers love", descMy: "မြန်မာ ဝယ်သူများ ယခု အကြိုက်ဆုံးကို အခြေခံ၍", filter: (p: any) => p.featured || p.status === "available" },
+  };
+  const [mainTab, setMainTab] = useState<"properties" | "projects" | "agents">("properties");
+  const [projectCity, setProjectCity] = useState("all");
+  const [agentSearch, setAgentSearch] = useState("");
+  const [agentRegion, setAgentRegion] = useState("all");
+  const [agentTownship, setAgentTownship] = useState("all");
+  const [agentSpecialization, setAgentSpecialization] = useState("all");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<typeof AGENTS[0] | null>(null);
+  const [agentContactName, setAgentContactName] = useState("");
+  const [agentContactPhone, setAgentContactPhone] = useState("");
+  const [agentContactSubmitted, setAgentContactSubmitted] = useState(false);
+  const [search, setSearch] = useState("");
+  const [listingFilter, setListingFilter] = useState<"all" | "sale" | "rent">("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [regionFilter, setRegionFilter] = useState("all");
+  const [townshipFilter, setTownshipFilter] = useState("all");
+  const [minPrice, setMinPrice] = useState("all");
+  const [maxPrice, setMaxPrice] = useState("all");
+  const [bedsFilter, setBedsFilter] = useState("all");
+  const [bathsFilter, setBathsFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [selected, setSelected] = useState<Property | null>(null);
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>(() => {
+    // Load saved view counts from localStorage
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(localStorage.getItem("yume_view_counts") || "{}"); } catch {}
+    }
+    return {};
+  });
+  const [activeImage, setActiveImage] = useState(0);
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [contactStep, setContactStep] = useState<"form" | "chat">("form");
+  const [chatMessages, setChatMessages] = useState<{from:"bot"|"user"; text:string; time:string}[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+
+  const t = txt[lang];
+  const ff = lang === "my" ? "'Padauk','Myanmar Text',sans-serif" : "Georgia,serif";
+
+  const types = Array.from(new Set(PROPERTIES.map(p => p.type)));
+
+  const filtered = useMemo(() => {
+    let list = PROPERTIES.filter(p => {
+      const title = lang === "my" ? p.titleMy : p.title;
+      const matchSearch = !search ||
+        title.toLowerCase().includes(search.toLowerCase()) ||
+        p.location.toLowerCase().includes(search.toLowerCase()) ||
+        p.code.toLowerCase().includes(search.toLowerCase()) ||
+        p.township.toLowerCase().includes(search.toLowerCase());
+      const matchListing = listingFilter === "all" || p.listing === listingFilter;
+      const matchType = typeFilter === "all" || p.type === typeFilter;
+      const matchBeds = bedsFilter === "all" || p.bedrooms >= parseInt(bedsFilter);
+      const matchBaths = bathsFilter === "all" || p.bathrooms >= parseInt(bathsFilter);
+      const matchTownship = townshipFilter === "all" || p.township.toLowerCase() === townshipFilter.toLowerCase();
+      const matchRegion = regionFilter === "all" || (
+        regionFilter in REGIONS && REGIONS[regionFilter].townships.some(t => t.en.toLowerCase() === p.township.toLowerCase())
+      );
+      let matchPrice = true;
+      if (minPrice !== "all" || maxPrice !== "all") {
+        const priceInLakh = p.price / 100000;
+        const min = minPrice !== "all" ? parseInt(minPrice) : 0;
+        const max = maxPrice !== "all" ? parseInt(maxPrice) : Infinity;
+        matchPrice = priceInLakh >= min && priceInLakh <= max;
+      }
+      return matchSearch && matchListing && matchType && matchBeds && matchBaths && matchPrice && matchTownship && matchRegion;
+    });
+
+    if (sortBy === "priceLow") list = [...list].sort((a,b) => a.price - b.price);
+    else if (sortBy === "priceHigh") list = [...list].sort((a,b) => b.price - a.price);
+    else list = [...list].sort((a,b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+
+    return list;
+  }, [search, listingFilter, typeFilter, regionFilter, townshipFilter, minPrice, maxPrice, bedsFilter, bathsFilter, sortBy, lang]);
+
+  function openProperty(p: Property) {
+    setSelected(p);
+    setActiveImage(0);
+    setSubmitted(false);
+    setContactStep("form");
+    setContactName("");
+    setContactPhone("");
+    setChatMessages([]);
+    setChatInput("");
+    // Increment view count
+    setViewCounts(prev => {
+      const updated = { ...prev, [p.id]: (prev[p.id] || 0) + 1 };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("yume_view_counts", JSON.stringify(updated));
+      }
+      return updated;
+    });
+  }
+
+  function toggleSave(id: string) {
+    setSavedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  }
+
+  function now() {
+    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function handleSubmit() {
+    if (!contactName.trim() || !contactPhone.trim()) return;
+    setSubmitted(true);
+    setContactStep("chat");
+    // Auto intro messages from bot
+    const msg1 = lang === "my"
+      ? `မင်္ဂလာပါ ${contactName}! ${selected?.agentName} မှ ကြိုဆိုပါသည်။ သင်၏ ဆက်သွယ်မှုကို လက်ခံရရှိပါသည်။`
+      : `Hello ${contactName}! This is ${selected?.agentName}. We have received your enquiry.`;
+    const msg2 = lang === "my"
+      ? `"${selected?.titleMy || selected?.title || "ဤအိမ်ခြံမြေ"}" အကြောင်း စိတ်ဝင်စားမှုကို ကျေးဇူးတင်ပါသည်။ ၂၄ နာရီအတွင်း ဆက်သွယ်ပေးပါမည်။ မေးမြန်းလိုသည်များ ရှိပါက ဤနေရာတွင် ရေးနိုင်ပါသည်။`
+      : `Thank you for your interest in "${selected?.title || "this property"}". We will contact you within 24 hours. Feel free to leave any questions below.`;
+    setChatMessages([
+      { from: "bot", text: msg1, time: now() },
+      { from: "bot", text: msg2, time: now() },
+    ]);
+  }
+
+  function handleChatSend() {
+    if (!chatInput.trim()) return;
+    setChatMessages(prev => [...prev, { from: "user", text: chatInput.trim(), time: now() }]);
+    setChatInput("");
+  }
+
+  const selectStyle = {
+    padding: "10px 14px", borderRadius: "4px",
+    border: `1px solid ${gold}`, background: cream,
+    fontSize: "13px", fontFamily: ff, color: navy,
+    cursor: "pointer",
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#eee8dc", fontFamily: ff }}>
+
+      {/* ── HEADER ── */}
+      <header style={{ background: "#fbf3da", padding: "0 28px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `2px solid ${gold}`, position: "sticky", top: 0, zIndex: 100 }}>
+        <img src="/logo.png" alt="Yume Estate" style={{ width: "160px", height: "auto" }} />
+        <nav style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <div style={{ display: "flex", border: `1px solid ${gold}`, borderRadius: "4px", overflow: "hidden" }}>
+            <button onClick={() => setLang("en")} style={{ padding: "6px 14px", background: lang === "en" ? navy : "transparent", color: lang === "en" ? "#ffffff" : "#333333", border: "none", cursor: "pointer", fontSize: "12px", fontWeight: 700, borderRadius: "4px", transition: "all 0.2s" }}>EN</button>
+            <button onClick={() => setLang("my")} style={{ padding: "6px 14px", background: lang === "my" ? navy : "transparent", color: lang === "my" ? "#ffffff" : "#333333", border: "none", cursor: "pointer", fontSize: "12px", fontFamily: ff, borderRadius: "4px", transition: "all 0.2s" }}>မြန်မာ</button>
+          </div>
+          <button onClick={onAgentLoginClick} style={{ background: navy, color: "#ffffff", padding: "8px 18px", borderRadius: "4px", fontSize: "12px", border: `1px solid ${gold}`, cursor: "pointer", letterSpacing: "1px", fontFamily: ff }}>{t.agentLogin}</button>
+        </nav>
+      </header>
+
+      {/* ── TAGLINE ── */}
+      <div style={{ background: navy, padding: "9px 24px", textAlign: "center" }}>
+        <p style={{ color: "#d4af7a", fontSize: "11px", margin: 0, letterSpacing: lang === "en" ? "5px" : "1px", fontStyle: "italic", fontFamily: ff }}>{t.tagline}</p>
+      </div>
+
+      {/* ── MAIN TABS ── */}
+      <div style={{ background: "#ffffff", borderBottom: "1px solid #eeeeee", display: "flex", justifyContent: "center" }}>
+        {([["properties", lang === "en" ? "Properties" : "အိမ်ခြံမြေများ"], ["projects", lang === "en" ? "New Projects" : "စီမံကိန်းများ"], ["agents", lang === "en" ? "Agents" : "အေးဂျင့်များ"]] as const).map(([tab, label]) => (
+          <button key={tab} onClick={() => setMainTab(tab)}
+            style={{ padding: "14px 32px", background: "transparent", border: "none", borderBottom: mainTab === tab ? "3px solid #111d2b" : "3px solid transparent", color: mainTab === tab ? "#111111" : "#888888", fontSize: "14px", fontWeight: mainTab === tab ? 700 : 400, cursor: "pointer", fontFamily: ff, transition: "all 0.2s" }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {mainTab === "properties" && <>
+      {/* ── HERO ── */}
+      <div style={{ background: navy, padding: "40px 28px", textAlign: "center" }}>
+        <h1 style={{ color: white, fontSize: "36px", fontWeight: 700, margin: "0 0 6px", lineHeight: 1.2, fontFamily: ff, letterSpacing: "-0.5px" }}>{t.hero1}</h1>
+        <h2 style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", fontWeight: 400, margin: "0 0 28px", fontFamily: ff }}>{t.hero2}</h2>
+
+        {/* ── BUY / RENT toggle ── */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+          <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: "12px", padding: "4px", display: "inline-flex" }}>
+            {([["sale", lang === "my" ? "ဝယ်ရန်" : "Buy"],
+               ["rent", lang === "my" ? "ငှားရမ်းရန်" : "Rent"]] as const).map(([v, label]) => (
+              <button key={v}
+                onClick={() => { setListingFilter(v); setMinPrice("all"); setMaxPrice("all"); }}
+                style={{
+                  padding: "11px 44px", borderRadius: "10px", border: "none", cursor: "pointer",
+                  background: listingFilter === v || (v === "sale" && listingFilter === "all") ? white : "transparent",
+                  color: listingFilter === v || (v === "sale" && listingFilter === "all") ? navy : "rgba(255,255,255,0.65)",
+                  fontSize: "15px", fontWeight: 700, fontFamily: ff, transition: "all 0.2s",
+                  boxShadow: listingFilter === v || (v === "sale" && listingFilter === "all") ? "0 2px 8px rgba(0,0,0,0.2)" : "none",
+                }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Search panel ── */}
+        <div style={{ maxWidth: "740px", margin: "0 auto", background: white, borderRadius: "12px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.25)" }}>
+          <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+
+            {/* Row 2 — Keyword search */}
+            <div style={{ position: "relative" }}>
+              <input value={search} onChange={e => setSearch(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                style={{ width: "100%", padding: "12px 16px 12px 40px", border: `1px solid #ddd5c0`, borderRadius: "6px", fontSize: "14px", fontFamily: ff, color: navy, boxSizing: "border-box", outline: "none" }} />
+              <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: gold, fontSize: "16px" }}></span>
+            </div>
+
+            {/* Row 3 — Region → Township (smart cascade) */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+              <select value={regionFilter} onChange={e => { setRegionFilter(e.target.value); setTownshipFilter("all"); }}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                <option value="all">{lang === "en" ? "All Regions" : "ဒေသများ အားလုံး"}</option>
+                {Object.entries(REGIONS).map(([key, r]) => (
+                  <option key={key} value={key}>{lang === "en" ? r.en : r.my}</option>
+                ))}
+              </select>
+              <select value={townshipFilter} onChange={e => setTownshipFilter(e.target.value)}
+                disabled={regionFilter === "all"}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid ${regionFilter === "all" ? "#e8dfc4" : "#ddd5c0"}`, background: regionFilter === "all" ? "#f5f0e8" : "#faf7f2", fontSize: "13px", fontFamily: ff, color: regionFilter === "all" ? "#aaa" : navy, cursor: regionFilter === "all" ? "not-allowed" : "pointer" }}>
+                <option value="all">{lang === "en" ? (regionFilter === "all" ? "Select Region First" : "All Townships") : (regionFilter === "all" ? "ဒေသ အရင်ရွေးပါ" : "မြို့နယ်အားလုံး")}</option>
+                {regionFilter !== "all" && REGIONS[regionFilter]?.townships.map(tp => (
+                  <option key={tp.en} value={tp.en}>{lang === "en" ? tp.en : tp.my}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Row 4 — Property type + Category */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+              <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                <option value="all">{t.allTypes}</option>
+                {types.map(tp => <option key={tp} value={tp}>{tp}</option>)}
+              </select>
+              <select value={bedsFilter} onChange={e => setBedsFilter(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                <option value="all">{t.anyBeds}</option>
+                <option value="1">{t.bed1}</option>
+                <option value="2">{t.bed2}</option>
+                <option value="3">{t.bed3}</option>
+                <option value="4">{t.bed4}</option>
+              </select>
+            </div>
+
+            {/* Row 5 — Bathrooms + Sort */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+              <select value={bathsFilter} onChange={e => setBathsFilter(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                <option value="all">{lang === "en" ? "Any Bathrooms" : "ရေချိုးခန်း မရွေး"}</option>
+                <option value="1">{lang === "en" ? "1+ Bath" : "၁+ ရေချိုးခန်း"}</option>
+                <option value="2">{lang === "en" ? "2+ Baths" : "၂+ ရေချိုးခန်း"}</option>
+                <option value="3">{lang === "en" ? "3+ Baths" : "၃+ ရေချိုးခန်း"}</option>
+              </select>
+              <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                <option value="newest">{t.newest}</option>
+                <option value="priceLow">{t.priceLow}</option>
+                <option value="priceHigh">{t.priceHigh}</option>
+              </select>
+            </div>
+
+            {/* Row 6 — Min + Max Price in Lakh */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+              <select value={minPrice} onChange={e => setMinPrice(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                <option value="all">{lang === "en" ? "Min Price (Lakh)" : "အနည်းဆုံး ဈေး (သိန်း)"}</option>
+                {(listingFilter === "rent"
+                  ? [1,2,3,5,8,10,15,20,30,50]
+                  : [100,200,300,400,500,600,700,800,900,1000,1500,2000,3000,5000,7000,10000,15000,20000,50000]
+                ).map(v => <option key={v} value={v}>{v.toLocaleString()} {lang === "en" ? "Lakh" : "သိန်း"}</option>)}
+              </select>
+              <select value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                <option value="all">{lang === "en" ? "Max Price (Lakh)" : "အများဆုံး ဈေး (သိန်း)"}</option>
+                {(listingFilter === "rent"
+                  ? [1,2,3,5,8,10,15,20,30,50,100]
+                  : [100,200,300,400,500,600,700,800,900,1000,1500,2000,3000,5000,7000,10000,15000,20000,50000,999999]
+                ).map(v => <option key={v} value={v}>
+                  {v === 999999 ? (lang === "en" ? "50,000+ Lakh" : "သိန်း ၅၀,၀၀၀ အထက်") : `${v.toLocaleString()} ${lang === "en" ? "Lakh" : "သိန်း"}`}
+                </option>)}
+              </select>
+            </div>
+
+            {/* Search button */}
+            <button
+              style={{ width: "100%", background: navy, color: gold, border: `2px solid ${gold}`, padding: "14px", borderRadius: "6px", fontSize: "15px", fontWeight: 700, cursor: "pointer", fontFamily: ff, letterSpacing: lang === "en" ? "2px" : "0" }}>
+               {lang === "en" ? "SEARCH" : "ရှာဖွေပါ"}
+            </button>
+
+            {/* Quick reset */}
+            {(search || listingFilter !== "all" || typeFilter !== "all" || regionFilter !== "all" || minPrice !== "all" || maxPrice !== "all" || bedsFilter !== "all" || bathsFilter !== "all") && (
+              <button onClick={() => { setSearch(""); setListingFilter("all"); setTypeFilter("all"); setRegionFilter("all"); setTownshipFilter("all"); setMinPrice("all"); setMaxPrice("all"); setBedsFilter("all"); setBathsFilter("all"); }}
+                style={{ width: "100%", background: "transparent", color: "#7a6a5a", border: "1px solid #ddd5c0", padding: "10px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff }}>
+                ✕ {t.clearFilters}
+              </button>
+            )}
+
+          </div>
+        </div>
+      </div>
+
+      {/* ── CATEGORY PAGE ── */}
+      {activeCategory && CATEGORIES[activeCategory] && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 500, overflowY: "auto", background: "#f8f6f2" }}>
+          <CategoryPage
+            category={CATEGORIES[activeCategory]}
+            lang={lang}
+            defaultListingType={listingFilter === "rent" ? "rent" : "sale"}
+            onBack={() => setActiveCategory(null)}
+            onPropertyClick={(p) => { setActiveCategory(null); openProperty(p); }}
+            allProperties={PROPERTIES}
+          />
+        </div>
+      )}
+
+      {/* ── DD PROPERTY INSPIRED SECTIONS ── */}
+      <HomePageSections
+        lang={lang}
+        listingType={listingFilter === "rent" ? "rent" : "sale"}
+        onPropertyClick={(id) => { const p = PROPERTIES.find(x => x.id === id); if (p) openProperty(p); }}
+        onViewMore={(categoryId: string) => setActiveCategory(categoryId)}
+      />
+
+      {/* ── ADVERTISEMENT BANNERS ── */}
+      <div style={{ background: "#ffffff", padding: "32px 40px", borderBottom: "1px solid #f0f0f0" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <p style={{ color: "#aaa", fontSize: "10px", letterSpacing: "3px", margin: "0 0 14px", fontFamily: ff, textAlign: "center" }}>
+            {lang === "my" ? "ပေးငွေပေးကြော်ငြာများ" : "SPONSORED DEVELOPERS"}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
+            {[
+              { dev: "Golden Hill Development", tagline: lang === "my" ? "ရန်ကုန်၏ အမြင့်ဆုံး ကွန်ဒို — ရန်ကင်းမြို့နယ်" : "Yangon's Most Premium Condo — Yankin Township", badge: "NEW LAUNCH", badgeBg: "#2d7a3a", bg: "#f0faf2", border: "#2d7a3a", textColor: "#1a4a22" },
+              { dev: "Shwe Taung Group", tagline: lang === "my" ? "မြန်မာ၏ ယုံကြည်ရဆုံး ဆောက်လုပ်ရေးကုမ္ပဏီ" : "Myanmar's Most Trusted Developer Since 1990", badge: "FEATURED", badgeBg: gold, bg: "#fffbf0", border: gold, textColor: "#5a3a0a" },
+              { dev: "KT Construction Group", tagline: lang === "my" ? "အရည်အသွေး မြင့်မားသော ကွန်ဒို စီမံကိန်းသစ်" : "Premium Quality Condo — New Launch 2026", badge: "PREMIUM", badgeBg: navy, bg: "#f0f4ff", border: "#2d4a8e", textColor: "#1a2e5f" },
+            ].map((ad, i) => (
+              <div key={i} style={{ background: ad.bg, border: `2px solid ${ad.border}`, borderRadius: "8px", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+                <div>
+                  <span style={{ background: ad.badgeBg, color: "#fff", fontSize: "10px", padding: "3px 10px", borderRadius: "3px", fontWeight: 700, letterSpacing: "1px", display: "inline-block", marginBottom: "8px" }}>{ad.badge}</span>
+                  <p style={{ color: navy, fontSize: "15px", fontWeight: 700, margin: "0 0 3px", fontFamily: ff }}>{ad.dev}</p>
+                  <p style={{ color: ad.textColor, fontSize: "12px", margin: 0, fontFamily: ff }}>{ad.tagline}</p>
+                </div>
+                <div style={{ background: ad.badgeBg, color: "#fff", width: "36px", height: "36px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", flexShrink: 0 }}>→</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── BROWSE BY CATEGORY ── */}
+      <div style={{ background: "#ffffff", padding: "32px 40px", borderBottom: "1px solid #f0f0f0" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <p style={{ color: "#888888", fontSize: "11px", letterSpacing: "2px", margin: "0 0 16px", fontFamily: ff, fontWeight: 600 }}>
+            {lang === "my" ? "အမျိုးအစားဖြင့် ရှာဖွေပါ" : "BROWSE BY CATEGORY"}
+          </p>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            {([
+              { en: "Condo", my: "ကွန်ဒို", count: "2,847", color: "#111d2b", text: "#bd9468",
+                icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="1" width="14" height="16" rx="1" stroke="currentColor" strokeWidth="1.4"/><line x1="6" y1="1" x2="6" y2="17" stroke="currentColor" strokeWidth="1"/><line x1="12" y1="1" x2="12" y2="17" stroke="currentColor" strokeWidth="1"/><line x1="2" y1="6" x2="16" y2="6" stroke="currentColor" strokeWidth="1"/><line x1="2" y1="11" x2="16" y2="11" stroke="currentColor" strokeWidth="1"/></svg> },
+              { en: "House", my: "အိမ်", count: "1,293", color: "#78350f", text: "#ffffff",
+                icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V17H11V12H7V17H2V8Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/></svg> },
+              { en: "Apartment", my: "အပါတ်မန့်", count: "3,421", color: "#1e3a5f", text: "#ffffff",
+                icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="15" rx="1" stroke="currentColor" strokeWidth="1.4"/><line x1="2" y1="7" x2="16" y2="7" stroke="currentColor" strokeWidth="1"/><line x1="2" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="1"/><line x1="7" y1="2" x2="7" y2="17" stroke="currentColor" strokeWidth="1"/><line x1="12" y1="2" x2="12" y2="17" stroke="currentColor" strokeWidth="1"/></svg> },
+              { en: "Land", my: "မြေ", count: "892", color: "#166534", text: "#ffffff",
+                icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14L6 7L10 11L13 6L16 14H2Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
+              { en: "Office", my: "ရုံးခန်း", count: "445", color: "#581c87", text: "#ffffff",
+                icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="1" width="14" height="16" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="5" y="5" width="3" height="3" rx="0.5" stroke="currentColor" strokeWidth="1"/><rect x="10" y="5" width="3" height="3" rx="0.5" stroke="currentColor" strokeWidth="1"/><rect x="5" y="10" width="3" height="3" rx="0.5" stroke="currentColor" strokeWidth="1"/><rect x="10" y="10" width="3" height="3" rx="0.5" stroke="currentColor" strokeWidth="1"/></svg> },
+              { en: "Penthouse", my: "ပင်ထောင်", count: "128", color: "#92400e", text: "#ffffff",
+                icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 10L9 3L16 10V17H2V10Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><line x1="9" y1="3" x2="9" y2="1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><line x1="7" y1="1" x2="11" y2="1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><rect x="6" y="12" width="6" height="5" stroke="currentColor" strokeWidth="1"/></svg> },
+            ] as any[]).map((cat, i) => (
+              <button key={i}
+                onClick={() => setTypeFilter(cat.en)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "10px", padding: "12px 18px",
+                  borderRadius: "10px", border: "none",
+                  background: typeFilter === cat.en ? cat.color : "#ffffff",
+                  color: typeFilter === cat.en ? cat.text : "#111111",
+                  boxShadow: typeFilter === cat.en ? "0 4px 16px rgba(0,0,0,0.2)" : "0 0 0 1.5px #111d2b",
+                  cursor: "pointer", transition: "all 0.2s",
+                }}
+                onMouseEnter={e => { if (typeFilter !== cat.en) { (e.currentTarget as HTMLButtonElement).style.background = cat.color; (e.currentTarget as HTMLButtonElement).style.color = cat.text; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.15)"; }}}
+                onMouseLeave={e => { if (typeFilter !== cat.en) { (e.currentTarget as HTMLButtonElement).style.background = "#ffffff"; (e.currentTarget as HTMLButtonElement).style.color = "#111111"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 0 1.5px #111d2b"; }}}>
+                <span style={{ display: "flex", color: "inherit" }}>{cat.icon}</span>
+                <div style={{ textAlign: "left" }}>
+                  <p style={{ color: "inherit", fontSize: "13px", fontWeight: 700, margin: 0, fontFamily: ff }}>{lang === "my" ? cat.my : cat.en}</p>
+                  <p style={{ color: typeFilter === cat.en ? "rgba(255,255,255,0.65)" : "#888888", fontSize: "11px", margin: 0, fontFamily: ff }}>{cat.count}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── UPCOMING EVENTS ── */}
+      <div style={{ background: "#ffffff", padding: "64px 40px", borderBottom: "1px solid #f0f0f0" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+
+          {/* Section header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+            <div>
+              <p style={{ color: gold, fontSize: "11px", letterSpacing: "3px", margin: "0 0 4px", fontFamily: ff }}>
+                {lang === "my" ? "ဖိတ်ကြားလိုသည်" : "UPCOMING"}
+              </p>
+              <h2 style={{ color: navy, fontSize: "22px", fontWeight: 400, margin: 0, fontFamily: ff }}>
+                {lang === "my" ? "အိမ်ခြံမြေ အရောင်းပြပွဲများ" : "Property Events & Expos"}
+              </h2>
+            </div>
+            <button style={{ background: "transparent", border: `1px solid ${gold}`, color: navy, padding: "8px 18px", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontFamily: ff, letterSpacing: "1px" }}>
+              {lang === "my" ? "အားလုံးကြည့်ရန်" : "VIEW ALL"} →
+            </button>
+          </div>
+
+          {/* Event cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
+            {[
+              {
+                id: "E1", featured: true,
+                title: "Yangon Property Expo 2026", titleMy: "ရန်ကုန် အိမ်ခြံမြေ ပြပွဲ ၂၀၂၆",
+                organizer: "Yume Estate", organizerMy: "Yume Estate",
+                date: "7 & 8 June 2026", dateMy: "၂၀၂၆ ခုနှစ် ဇွန်လ ၇ & ၈ ရက်",
+                day: "Saturday & Sunday", dayMy: "စနေ & တနင်္ဂနွေ",
+                venue: "Novotel Yangon Max, Yankin", venueMy: "နိုဗိုတယ် ရန်ကုန်မက်စ်၊ ရန်ကင်း",
+                city: "Yangon", cityMy: "ရန်ကုန်",
+                developers: ["Golden Hill", "Premier Homes", "KT Group", "Shwe Taung"],
+                gradient: ["#1a2e45", "#2d4a6e"],
+                tag: "FLAGSHIP EVENT", tagMy: "အဓိက ပွဲတော်",
+              },
+              {
+                id: "E2", featured: false,
+                title: "Mandalay Real Estate Fair", titleMy: "မန္တလေး အိမ်ခြံမြေ ဖြစ်ပွဲ",
+                organizer: "Yume Estate", organizerMy: "Yume Estate",
+                date: "21 June 2026", dateMy: "၂၀၂၆ ခုနှစ် ဇွန်လ ၂၁ ရက်",
+                day: "Sunday", dayMy: "တနင်္ဂနွေ",
+                venue: "Mandalay Hill Resort Hotel", venueMy: "မန္တလေးဟစ် ရီဆော့တ် ဟိုတယ်",
+                city: "Mandalay", cityMy: "မန္တလေး",
+                developers: ["Mandalay Elite", "Royal Builders", "Heritage Dev"],
+                gradient: ["#2d1a0d", "#4a2e1a"],
+                tag: "REGIONAL EXPO", tagMy: "ဒေသဆိုင်ရာ ပြပွဲ",
+              },
+              {
+                id: "E3", featured: false,
+                title: "Condo Investment Seminar", titleMy: "ကွန်ဒို ရင်းနှီးမြှုပ်နှံမှု သင်တန်း",
+                organizer: "Yume Estate", organizerMy: "Yume Estate",
+                date: "14 June 2026", dateMy: "၂၀၂၆ ခုနှစ် ဇွန်လ ၁၄ ရက်",
+                day: "Sunday", dayMy: "တနင်္ဂနွေ",
+                venue: "Chatrium Hotel, Yangon", venueMy: "ချတ်ထရီယမ် ဟိုတယ်၊ ရန်ကုန်",
+                city: "Yangon", cityMy: "ရန်ကုန်",
+                developers: ["Grand Tower Dev", "Pun Hlaing Estate"],
+                gradient: ["#1e3a5f", "#0d1f33"],
+                tag: "SEMINAR", tagMy: "သင်တန်း",
+              },
+            ].map(event => (
+              <div key={event.id} style={{ background: "#fff", borderRadius: "8px", overflow: "hidden", border: event.featured ? `2px solid ${gold}` : "1px solid #e0d8cc", boxShadow: event.featured ? `0 4px 20px rgba(189,148,104,0.2)` : "none" }}>
+
+                {/* Event banner */}
+                <div style={{ height: "140px", background: `linear-gradient(135deg, ${event.gradient[0]}, ${event.gradient[1]})`, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 6px", fontFamily: ff }}>
+                      {lang === "my" ? event.tagMy : event.tag}
+                    </p>
+                    <h3 style={{ color: "#fff", fontSize: "16px", fontWeight: 600, margin: 0, lineHeight: 1.3, fontFamily: ff }}>
+                      {lang === "my" ? event.titleMy : event.title}
+                    </h3>
+                  </div>
+                  {event.featured && (
+                    <div style={{ position: "absolute", top: "10px", right: "10px", background: gold, color: "#fff", fontSize: "9px", padding: "3px 8px", borderRadius: "2px", fontWeight: 700, letterSpacing: "1px" }}>
+                      ⭐ {lang === "my" ? "အထူးဖော်ပြ" : "FEATURED"}
+                    </div>
+                  )}
+                </div>
+
+                {/* Event details */}
+                <div style={{ padding: "16px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "12px" }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                      <span style={{ fontSize: "13px" }}></span>
+                      <div>
+                        <p style={{ color: navy, fontSize: "13px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "my" ? event.dateMy : event.date}</p>
+                        <p style={{ color: gold, fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "my" ? event.dayMy : event.day}</p>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                      <span style={{ fontSize: "13px" }}></span>
+                      <p style={{ color: "#5a4a3a", fontSize: "12px", margin: 0, lineHeight: 1.4, fontFamily: ff }}>{lang === "my" ? event.venueMy : event.venue}</p>
+                    </div>
+                  </div>
+
+                  {/* Developer logos strip */}
+                  <div style={{ borderTop: "1px solid #e8dfc4", paddingTop: "10px", marginBottom: "12px" }}>
+                    <p style={{ color: "#7a6a5a", fontSize: "10px", letterSpacing: "1px", margin: "0 0 6px", fontFamily: ff }}>
+                      {lang === "my" ? "ပါဝင်သော ဆောက်လုပ်ရေးများ" : "PARTICIPATING DEVELOPERS"}
+                    </p>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      {event.developers.map((d, i) => (
+                        <span key={i} style={{ background: "#faf7f2", border: "1px solid #e8dfc4", color: navy, fontSize: "10px", padding: "3px 8px", borderRadius: "2px", fontFamily: ff }}>{d}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Register button */}
+                  <button style={{ width: "100%", background: navy, color: gold, border: `2px solid ${gold}`, padding: "10px", borderRadius: "6px", fontSize: "12px", cursor: "pointer", fontFamily: ff, fontWeight: 600, letterSpacing: lang === "my" ? "0" : "1px" }}>
+                     {lang === "my" ? "မှတ်ပုံတင်ရန်" : "REGISTER FREE"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Developer logos marquee strip */}
+          <div style={{ marginTop: "24px", padding: "16px", background: "#fff", borderRadius: "8px", border: "1px solid #e0d8cc" }}>
+            <p style={{ color: "#7a6a5a", fontSize: "10px", letterSpacing: "2px", margin: "0 0 12px", textAlign: "center", fontFamily: ff }}>
+              {lang === "my" ? "မိတ်ဖက် ဆောက်လုပ်ရေး ကုမ္ပဏီများ" : "PARTNER DEVELOPERS"}
+            </p>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+              {["Golden Hill Dev", "KT Group", "Shwe Taung", "Premier Homes", "Mandalay Elite", "Pun Hlaing Estate", "Grand Tower Dev"].map((dev, i) => (
+                <div key={i} style={{ background: "#faf7f2", border: `1px solid ${gold}`, borderRadius: "4px", padding: "8px 16px" }}>
+                  <p style={{ color: navy, fontSize: "11px", fontWeight: 600, margin: 0, fontFamily: ff }}>{dev}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      </>}
+
+      {/* ── AGENT DIRECTORY ── */}
+      {mainTab === "agents" && (
+        <div style={{ background: "#eee8dc", minHeight: "60vh" }}>
+
+          {/* Agent search panel */}
+          <div style={{ background: `linear-gradient(160deg, ${navy}, ${darkNavy})`, padding: "40px 28px", textAlign: "center" }}>
+            <h1 style={{ color: cream, fontSize: "28px", fontWeight: 400, margin: "0 0 6px", fontFamily: ff }}>
+              {lang === "en" ? "Find a Trusted Agent" : "ယုံကြည်ရသော အေးဂျင့် ရှာဖွေပါ"}
+            </h1>
+            <p style={{ color: gold, fontSize: "13px", margin: "0 0 28px", letterSpacing: lang === "en" ? "1px" : "0", fontFamily: ff }}>
+              {lang === "en" ? "All agents are verified Yume Estate subscribers" : "အေးဂျင့်အားလုံးသည် Yume Estate ၏ အတည်ပြုထားသော အဖွဲ့ဝင်များ ဖြစ်သည်"}
+            </p>
+
+            {/* Search panel card */}
+            <div style={{ maxWidth: "700px", margin: "0 auto", background: "#fff", borderRadius: "8px", overflow: "hidden", border: `2px solid ${gold}`, boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}>
+              <div style={{ background: gold, padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p style={{ color: "#fff", fontSize: "13px", fontWeight: 700, margin: 0, letterSpacing: lang === "en" ? "2px" : "0", fontFamily: ff }}>
+                   {lang === "en" ? "SEARCH AGENTS & AGENCIES" : "အေးဂျင့် & အေဂျင်စီ ရှာဖွေရန်"}
+                </p>
+                <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "11px", margin: 0, fontFamily: ff }}>
+                  {AGENTS.filter(a => {
+                    const name = lang === "en" ? a.agency : a.agencyMy;
+                    const agentName = lang === "en" ? a.name : a.nameMy;
+                    const matchSearch = !agentSearch || name.toLowerCase().includes(agentSearch.toLowerCase()) || agentName.toLowerCase().includes(agentSearch.toLowerCase());
+                    const matchRegion = agentRegion === "all" || a.region === agentRegion;
+                    const matchTownship = agentTownship === "all" || a.township === agentTownship;
+                    const matchSpec = agentSpecialization === "all" || a.specializations.includes(agentSpecialization);
+                    const matchVerified = !verifiedOnly || a.verified;
+                    return matchSearch && matchRegion && matchTownship && matchSpec && matchVerified;
+                  }).length} {lang === "en" ? "agents found" : "အေးဂျင့် တွေ့ရှိသည်"}
+                </p>
+              </div>
+
+              <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+
+                {/* Company / Agent name */}
+                <div style={{ position: "relative" }}>
+                  <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", fontSize: "16px" }}></span>
+                  <input value={agentSearch} onChange={e => setAgentSearch(e.target.value)}
+                    placeholder={lang === "en" ? "Company name or agent name..." : "ကုမ္ပဏီ နာမည် သို့မဟုတ် အေးဂျင့် နာမည်..."}
+                    style={{ width: "100%", padding: "12px 16px 12px 42px", border: `1px solid #ddd5c0`, borderRadius: "6px", fontSize: "14px", fontFamily: ff, color: navy, boxSizing: "border-box", outline: "none" }} />
+                </div>
+
+                {/* Region + Township cascade */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <select value={agentRegion} onChange={e => { setAgentRegion(e.target.value); setAgentTownship("all"); }}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="all">{lang === "en" ? "All Regions" : "ဒေသများ အားလုံး"}</option>
+                    {Object.entries(REGIONS).map(([key, r]) => (
+                      <option key={key} value={key}>{lang === "en" ? r.en : r.my}</option>
+                    ))}
+                  </select>
+                  <select value={agentTownship} onChange={e => setAgentTownship(e.target.value)}
+                    disabled={agentRegion === "all"}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid ${agentRegion === "all" ? "#e8dfc4" : "#ddd5c0"}`, background: agentRegion === "all" ? "#f5f0e8" : "#faf7f2", fontSize: "13px", fontFamily: ff, color: agentRegion === "all" ? "#aaa" : navy, cursor: agentRegion === "all" ? "not-allowed" : "pointer" }}>
+                    <option value="all">{lang === "en" ? (agentRegion === "all" ? "Select Region First" : "All Townships") : (agentRegion === "all" ? "ဒေသ အရင်ရွေးပါ" : "မြို့နယ်အားလုံး")}</option>
+                    {agentRegion !== "all" && REGIONS[agentRegion]?.townships.map(tp => (
+                      <option key={tp.en} value={tp.en}>{lang === "en" ? tp.en : tp.my}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Specialization filter */}
+                <select value={agentSpecialization} onChange={e => setAgentSpecialization(e.target.value)}
+                  style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                  <option value="all">{lang === "en" ? "All Specializations" : "အထူးကျွမ်းကျင်မှု အားလုံး"}</option>
+                  {["Condo", "Apartment", "House", "Land", "Penthouse", "Studio"].map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+
+                {/* Verified only toggle */}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", background: "#faf7f2", borderRadius: "6px", border: "1px solid #ddd5c0" }}>
+                  <input type="checkbox" id="verifiedOnly" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)}
+                    style={{ width: "18px", height: "18px", accentColor: gold, cursor: "pointer" }} />
+                  <label htmlFor="verifiedOnly" style={{ color: navy, fontSize: "13px", cursor: "pointer", fontFamily: ff }}>
+                    ✓ {lang === "en" ? "Show verified agents only" : "အတည်ပြုထားသော အေးဂျင့်များသာ ပြပါ"}
+                  </label>
+                </div>
+
+                {/* Clear button */}
+                {(agentSearch || agentRegion !== "all" || agentTownship !== "all" || agentSpecialization !== "all" || verifiedOnly) && (
+                  <button onClick={() => { setAgentSearch(""); setAgentRegion("all"); setAgentTownship("all"); setAgentSpecialization("all"); setVerifiedOnly(false); }}
+                    style={{ width: "100%", background: "transparent", color: "#7a6a5a", border: "1px solid #ddd5c0", padding: "10px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff }}>
+                    ✕ {lang === "en" ? "Clear all filters" : "စစ်ထုတ်မှုများ ရှင်းပါ"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Agent cards */}
+          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 28px", display: "flex", flexDirection: "column", gap: "20px" }}>
+            {AGENTS
+              .filter(a => {
+                const name = lang === "en" ? a.name : a.nameMy;
+                const agency = lang === "en" ? a.agency : a.agencyMy;
+                const matchSearch = !agentSearch || name.toLowerCase().includes(agentSearch.toLowerCase()) || agency.toLowerCase().includes(agentSearch.toLowerCase());
+                const matchRegion = agentRegion === "all" || a.region === agentRegion;
+                const matchTownship = agentTownship === "all" || a.township === agentTownship;
+                const matchSpec = agentSpecialization === "all" || a.specializations.includes(agentSpecialization);
+                const matchVerified = !verifiedOnly || a.verified;
+                return matchSearch && matchRegion && matchTownship && matchSpec && matchVerified;
+              })
+              .map(agent => (
+                <div key={agent.id} style={{ background: "#fff", borderRadius: "8px", border: agent.featured ? `2px solid ${gold}` : "1px solid #e0d8cc", overflow: "hidden" }}>
+
+                  {/* Featured banner */}
+                  {agent.featured && (
+                    <div style={{ background: gold, padding: "6px 20px" }}>
+                      <span style={{ color: "#fff", fontSize: "11px", fontWeight: 700, letterSpacing: "2px", fontFamily: ff }}>⭐ {lang === "en" ? "FEATURED AGENT" : "အထူးဖော်ပြ အေးဂျင့်"}</span>
+                    </div>
+                  )}
+
+                  <div style={{ padding: "24px", display: "flex", gap: "24px", flexWrap: "wrap" }}>
+
+                    {/* Avatar */}
+                    <div style={{ flexShrink: 0, textAlign: "center" }}>
+                      <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: navy, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", color: gold, fontWeight: 700, margin: "0 auto 8px", border: `3px solid ${gold}`, textAlign: "center", lineHeight: 1.2 }}>
+                        {agent.agency.split(" ").slice(0,2).map(w => w[0]).join("")}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+                        <span style={{ display: "flex", gap: "2px", alignItems: "center" }}>
+                          {Array.from({ length: Math.floor(agent.rating) }).map((_, si) => (
+                            <svg key={si} width="13" height="13" viewBox="0 0 24 24" fill="#bd9468" stroke="#bd9468" strokeWidth="1" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                          ))}
+                        </span>
+                        <span style={{ color: "#7a6a5a", fontSize: "12px", fontFamily: ff }}>{agent.rating}</span>
+                      </div>
+                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: "2px 0 0", fontFamily: ff }}>({agent.reviews} {lang === "en" ? "reviews" : "သုံးသပ်ချက်"})</p>
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: "200px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "4px" }}>
+                        <h2 style={{ color: navy, fontSize: "20px", fontWeight: 600, margin: 0, fontFamily: ff }}>
+                          {lang === "en" ? agent.agency : agent.agencyMy}
+                        </h2>
+                        {agent.verified && (
+                          <span style={{ background: "#e8f5e9", color: "#2d7a3a", fontSize: "11px", padding: "3px 10px", borderRadius: "999px", border: "1px solid #2d7a3a", fontFamily: ff }}>
+                            ✓ {lang === "en" ? "Verified" : "အတည်ပြုပြီး"}
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ color: gold, fontSize: "13px", margin: "0 0 8px", fontFamily: ff }}>
+                        {lang === "en" ? agent.name : agent.nameMy}
+                      </p>
+                      <p style={{ color: "#5a4a3a", fontSize: "13px", margin: "0 0 12px", lineHeight: 1.6, fontFamily: ff }}>
+                        {lang === "en" ? agent.bio : agent.bioMy}
+                      </p>
+
+                      {/* Specializations */}
+                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+                        {(lang === "en" ? agent.specializations : agent.specializationsMy).map((s, i) => (
+                          <span key={i} style={{ background: "#faf7f2", border: `1px solid ${gold}`, color: navy, fontSize: "11px", padding: "4px 12px", borderRadius: "999px", fontFamily: ff }}>{s}</span>
+                        ))}
+                      </div>
+
+                      {/* Stats */}
+                      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                        <div>
+                          <p style={{ color: gold, fontSize: "18px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}>{agent.activeListings}</p>
+                          <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Active Listings" : "တင်ထားသည်"}</p>
+                        </div>
+                        <div>
+                          <p style={{ color: gold, fontSize: "18px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}>{agent.totalSold}</p>
+                          <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Total Sold" : "ရောင်းပြီး"}</p>
+                        </div>
+                        <div>
+                          <p style={{ color: "#2d7a3a", fontSize: "14px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}> {agent.responseTime}</p>
+                          <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Response time" : "တုံ့ပြန်ချိန်"}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contact panel */}
+                    <div style={{ flexShrink: 0, width: "220px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: "0 0 4px", letterSpacing: "1px", fontFamily: ff }}> {agent.township}, {lang === "en" ? REGIONS[agent.region]?.en : REGIONS[agent.region]?.my}</p>
+
+                      {selectedAgent?.id !== agent.id ? (
+                        <button onClick={() => { setSelectedAgent(agent); setAgentContactName(""); setAgentContactPhone(""); setAgentContactSubmitted(false); }}
+                          style={{ background: navy, color: gold, border: `2px solid ${gold}`, padding: "12px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff, fontWeight: 600 }}>
+                           {lang === "en" ? "Contact Agent" : "အေးဂျင့်ထံ ဆက်သွယ်ရန်"}
+                        </button>
+                      ) : !agentContactSubmitted ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <input value={agentContactName} onChange={e => setAgentContactName(e.target.value)}
+                            placeholder={lang === "en" ? "Your name" : "နာမည်"}
+                            style={{ padding: "10px 12px", borderRadius: "4px", border: "1px solid #ddd5c0", fontSize: "13px", fontFamily: ff }} />
+                          <input value={agentContactPhone} onChange={e => setAgentContactPhone(e.target.value)}
+                            placeholder={lang === "en" ? "Your phone" : "ဖုန်းနံပါတ်"}
+                            style={{ padding: "10px 12px", borderRadius: "4px", border: "1px solid #ddd5c0", fontSize: "13px", fontFamily: ff }} />
+                          <button onClick={() => { if (agentContactName && agentContactPhone) setAgentContactSubmitted(true); }}
+                            style={{ background: gold, color: "#fff", border: "none", padding: "10px", borderRadius: "4px", fontSize: "13px", cursor: "pointer", fontFamily: ff, fontWeight: 600 }}>
+                            {lang === "en" ? "Get Number →" : "ဖုန်းနံပါတ် ရယူရန် →"}
+                          </button>
+                        </div>
+                      ) : (
+                        <div style={{ background: navy, borderRadius: "6px", padding: "14px", textAlign: "center" }}>
+                          <p style={{ color: gold, fontSize: "10px", margin: "0 0 4px", letterSpacing: "1px", fontFamily: ff }}>PHONE</p>
+                          <p style={{ color: "#fff", fontSize: "18px", fontWeight: 700, margin: "0 0 8px", fontFamily: ff }}>{agent.phone}</p>
+                          <a href={`tel:${agent.phone}`}
+                            style={{ display: "block", background: gold, color: "#fff", padding: "8px", borderRadius: "4px", textDecoration: "none", fontSize: "13px", fontFamily: ff, fontWeight: 600 }}>
+                             {lang === "en" ? "Call Now" : "ခေါ်ဆိုရန်"}
+                          </a>
+                        </div>
+                      )}
+
+                      <button onClick={() => { setMainTab("properties"); }}
+                        style={{ background: "transparent", color: navy, border: "1px solid #ddd5c0", padding: "10px", borderRadius: "6px", fontSize: "12px", cursor: "pointer", fontFamily: ff }}>
+                        {lang === "en" ? `View ${agent.activeListings} listings` : `လစ်ဆင်း ${agent.activeListings} ခု ကြည့်ရန်`}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── NEW DEVELOPMENT PROJECTS ── */}
+      {mainTab === "projects" && (
+        <div style={{ background: "#eee8dc", minHeight: "60vh" }}>
+
+          {/* Hero */}
+          <div style={{ background: `linear-gradient(160deg, ${navy}, ${darkNavy})`, padding: "48px 28px", textAlign: "center" }}>
+            <p style={{ color: gold, fontSize: "11px", letterSpacing: "4px", margin: "0 0 8px", fontFamily: ff }}>
+              {lang === "en" ? "EXCLUSIVE LISTINGS" : "အထူး ဖော်ပြချက်များ"}
+            </p>
+            <h1 style={{ color: cream, fontSize: "30px", fontWeight: 400, margin: "0 0 8px", fontFamily: ff }}>
+              {lang === "en" ? "New Development Projects" : "စီမံကိန်းသစ်များ"}
+            </h1>
+            <p style={{ color: "#8fafc8", fontSize: "14px", margin: "0 0 20px", fontFamily: ff }}>
+              {lang === "en" ? "Invest early in Myanmar's most exciting upcoming developments — Yangon, Mandalay, Naypyidaw, Taunggyi & Hpa-An" : "ရန်ကုန်၊ မန္တလေး၊ နေပြည်တော်၊ တောင်ကြီး နှင့် ဟားခါး၏ အကောင်းဆုံး စီမံကိန်းသစ်များတွင် အစောပိုင်း ရင်းနှီးမြှုပ်နှံပါ"}
+            </p>
+            <div style={{ display: "inline-flex", background: "rgba(189,148,104,0.15)", border: `1px solid ${gold}`, borderRadius: "999px", padding: "6px 20px" }}>
+              <p style={{ color: gold, fontSize: "12px", margin: 0, fontFamily: ff }}>
+                 {lang === "en" ? "Advertise your project here — contact Yume Estate" : "သင်၏ စီမံကိန်းကို ဤနေရာတွင် ကြော်ငြာပါ — Yume Estate သို့ ဆက်သွယ်ပါ"}
+              </p>
+            </div>
+          </div>
+
+          {/* City filter tabs */}
+          <div style={{ background: "#fbf3da", borderBottom: `1px solid ${gold}`, display: "flex", overflowX: "auto", padding: "0 20px" }}>
+            {[
+              { key: "all", en: "All Cities", my: "မြို့အားလုံး" },
+              { key: "yangon", en: "Yangon", my: "ရန်ကုန်" },
+              { key: "mandalay", en: "Mandalay", my: "မန္တလေး" },
+              { key: "naypyidaw", en: "Naypyidaw", my: "နေပြည်တော်" },
+              { key: "taunggyi", en: "Taunggyi", my: "တောင်ကြီး" },
+            ].map(city => (
+              <button key={city.key} onClick={() => setProjectCity(city.key)}
+                style={{ padding: "12px 24px", background: "transparent", border: "none", borderBottom: projectCity === city.key ? `3px solid ${gold}` : "3px solid transparent", color: projectCity === city.key ? navy : "#7a6a5a", fontSize: "13px", fontWeight: projectCity === city.key ? 700 : 400, cursor: "pointer", fontFamily: ff, whiteSpace: "nowrap" }}>
+                {lang === "en" ? city.en : city.my}
+              </button>
+            ))}
+          </div>
+
+          {/* Projects grid */}
+          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "32px 28px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "28px" }}>
+            {[
+              {
+                id: "P1", city: "yangon", badge: "FEATURED", badgeColor: gold,
+                name: "The Grand Yankin Tower", nameMy: "ဂရမ်းဒ် ရန်ကင်း တာဝါ",
+                developer: "Golden Hill Development Co., Ltd.", developerMy: "ဂိုလ်ဒင်ဟစ် ဖွံ့ဖြိုးရေး ကုမ္ပဏီ လီမိတက်",
+                location: "Yankin Township, Yangon", locationMy: "ရန်ကင်းမြို့နယ်၊ ရန်ကုန်",
+                type: "Condo", typeMy: "ကွန်ဒို",
+                units: 240, floors: 32,
+                priceFrom: 1500, priceTo: 8000,
+                completion: "Q4 2027", completionMy: "၂၀၂၇ ခုနှစ် Q4",
+                status: "Selling Now", statusMy: "ယခု ရောင်းနေပြီ", statusColor: "#2d7a3a",
+                features: ["Swimming Pool", "Gym", "24/7 Security", "Parking", "Sky Lounge"],
+                featuresMy: ["ရေကူးကန်", "ကိုယ်လက်လှုပ်ရှားမှုခန်း", "လုံခြုံရေး ၂၄/၇", "ကားရပ်နားရာ", "Sky Lounge"],
+                gradient: ["#1a2e45", "#2d4a6e"],
+              },
+              {
+                id: "P2", city: "yangon", badge: "NEW LAUNCH", badgeColor: "#2d7a3a",
+                name: "Hlaing Prestige Residences", nameMy: "လှိုင်း ပရက်စတစ်ဂျ် နေအိမ်များ",
+                developer: "Myanmar Premier Properties Co., Ltd.", developerMy: "မြန်မာ ပရီမီယာ ပရော်ပတ်တီး ကုမ္ပဏီ",
+                location: "Hlaing Township, Yangon", locationMy: "လှိုင်းမြို့နယ်၊ ရန်ကုန်",
+                type: "Apartment", typeMy: "အပါတ်မန့်",
+                units: 180, floors: 20,
+                priceFrom: 800, priceTo: 3500,
+                completion: "Q2 2026", completionMy: "၂၀၂၆ ခုနှစ် Q2",
+                status: "Pre-Sale", statusMy: "ကြိုတင် ရောင်းချမှု", statusColor: "#bd9468",
+                features: ["Rooftop Garden", "Kids Play Area", "CCTV", "Generator", "Lobby"],
+                featuresMy: ["ခေါင်မိုးဥယျာဉ်", "ကလေးကစားကွင်း", "CCTV", "မီးစက်", "ဝင်ပေါက်ခန်း"],
+                gradient: ["#2d4a6e", "#3d5a7e"],
+              },
+              {
+                id: "P3", city: "mandalay", badge: "FEATURED", badgeColor: gold,
+                name: "Mandalay Royal Condo", nameMy: "မန္တလေး ရိုင်ယယ်လ် ကွန်ဒို",
+                developer: "Mandalay Elite Builders Co., Ltd.", developerMy: "မန္တလေး အယ်လိုက်တ် ဆောက်လုပ်ရေး ကုမ္ပဏီ",
+                location: "Chanayethazan Township, Mandalay", locationMy: "ချမ်းအေးသာဇံမြို့နယ်၊ မန္တလေး",
+                type: "Condo", typeMy: "ကွန်ဒို",
+                units: 120, floors: 18,
+                priceFrom: 1200, priceTo: 5000,
+                completion: "Q1 2027", completionMy: "၂၀၂၇ ခုနှစ် Q1",
+                status: "Selling Now", statusMy: "ယခု ရောင်းနေပြီ", statusColor: "#2d7a3a",
+                features: ["Pool", "Gym", "Palace View", "Smart Home", "Parking"],
+                featuresMy: ["ရေကူးကန်", "ကိုယ်လက်လှုပ်ရှားမှုခန်း", "နန်းတော်မြင်ကွင်း", "Smart Home", "ကားရပ်နားရာ"],
+                gradient: ["#1a2e45", "#0d1f33"],
+              },
+              {
+                id: "P4", city: "naypyidaw", badge: "NEW LAUNCH", badgeColor: "#2d7a3a",
+                name: "Naypyidaw Garden Villas", nameMy: "နေပြည်တော် ဥယျာဉ် ဗီလာများ",
+                developer: "Capital City Development Co., Ltd.", developerMy: "မြို့တော် ဖွံ့ဖြိုးရေး ကုမ္ပဏီ",
+                location: "Zabuthiri Township, Naypyidaw", locationMy: "ဇဗ္ဗူသီရိမြို့နယ်၊ နေပြည်တော်",
+                type: "Villa", typeMy: "ဗီလာ",
+                units: 60, floors: 3,
+                priceFrom: 2000, priceTo: 9000,
+                completion: "Q3 2026", completionMy: "၂၀၂၆ ခုနှစ် Q3",
+                status: "Pre-Sale", statusMy: "ကြိုတင် ရောင်းချမှု", statusColor: "#bd9468",
+                features: ["Private Garden", "Pool", "Maid's Room", "4 Parking", "Smart Security"],
+                featuresMy: ["ကိုယ်ပိုင်ဥယျာဉ်", "ရေကူးကန်", "အမှုထမ်းခန်း", "ကား ၄ စီး", "Smart လုံခြုံရေး"],
+                gradient: ["#1e3a5f", "#2d4a6e"],
+              },
+              {
+                id: "P5", city: "taunggyi", badge: "COMING SOON", badgeColor: "#7a5a3a",
+                name: "Taunggyi Highland Condos", nameMy: "တောင်ကြီး မြင့်မားသောနေရာ ကွန်ဒိုများ",
+                developer: "Shan State Premier Co., Ltd.", developerMy: "ရှမ်းပြည်နယ် ပရီမီယာ ကုမ္ပဏီ",
+                location: "Taunggyi, Shan State", locationMy: "တောင်ကြီး၊ ရှမ်းပြည်နယ်",
+                type: "Condo", typeMy: "ကွန်ဒို",
+                units: 80, floors: 12,
+                priceFrom: 600, priceTo: 2500,
+                completion: "Q2 2028", completionMy: "၂၀၂၈ ခုနှစ် Q2",
+                status: "Register Interest", statusMy: "စိတ်ဝင်စားမှု မှတ်ပုံတင်ရန်", statusColor: "#7a5a3a",
+                features: ["Mountain View", "Cool Climate", "Gym", "Restaurant", "Parking"],
+                featuresMy: ["တောင်မြင်ကွင်း", "အေးမြသောရာသီဥတု", "ကိုယ်လက်လှုပ်ရှားမှုခန်း", "စားသောက်ဆိုင်", "ကားရပ်နားရာ"],
+                gradient: ["#2d3a1f", "#3d4a2e"],
+              },
+            ].filter(p => projectCity === "all" || p.city === projectCity)
+              .map(project => (
+                <div key={project.id} style={{ background: "#fff", borderRadius: "8px", overflow: "hidden", border: `1px solid #e0d8cc`, boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+
+                  {/* Banner image */}
+                  <div style={{ height: "200px", background: `linear-gradient(135deg, ${project.gradient[0]}, ${project.gradient[1]})`, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style={{ opacity: 0.25 }}><rect x="8" y="16" width="36" height="30" rx="2" stroke="white" strokeWidth="2.5"/><path d="M4 18L26 4L48 18" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="20" y="30" width="12" height="16" stroke="white" strokeWidth="2"/></svg>
+
+                    {/* Badge */}
+                    <div style={{ position: "absolute", top: "12px", left: "12px" }}>
+                      <span style={{ background: project.badgeColor, color: "#fff", fontSize: "10px", padding: "4px 12px", borderRadius: "2px", letterSpacing: "1px", fontWeight: 700, fontFamily: ff }}>
+                        {project.badge}
+                      </span>
+                    </div>
+
+                    {/* Status */}
+                    <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: "11px", padding: "4px 10px", borderRadius: "2px", fontFamily: ff }}>
+                         {project.floors} {lang === "en" ? "Floors" : "ထပ်"} · {project.units} {lang === "en" ? "Units" : "ယူနစ်"}
+                      </span>
+                      <span style={{ background: project.statusColor, color: "#fff", fontSize: "10px", padding: "4px 10px", borderRadius: "2px", fontFamily: ff, fontWeight: 700 }}>
+                        {lang === "en" ? project.status : project.statusMy}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: "18px" }}>
+                    {/* Project name */}
+                    <h3 style={{ color: navy, fontSize: "17px", fontWeight: 600, margin: "0 0 4px", fontFamily: ff }}>
+                      {lang === "en" ? project.name : project.nameMy}
+                    </h3>
+                    <p style={{ color: gold, fontSize: "12px", margin: "0 0 4px", fontFamily: ff }}>
+                       {lang === "en" ? project.developer : project.developerMy}
+                    </p>
+                    <p style={{ color: "#7a6a5a", fontSize: "12px", margin: "0 0 12px", fontFamily: ff }}>
+                       {lang === "en" ? project.location : project.locationMy}
+                    </p>
+
+                    {/* Price range */}
+                    <div style={{ background: navy, borderRadius: "6px", padding: "12px 16px", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <p style={{ color: gold, fontSize: "10px", margin: "0 0 2px", letterSpacing: "1px", fontFamily: ff }}>{lang === "en" ? "STARTING FROM" : "အနည်းဆုံး ဈေးနှုန်း"}</p>
+                        <p style={{ color: "#fff", fontSize: "16px", fontWeight: 700, margin: 0, fontFamily: ff }}>
+                          {project.priceFrom.toLocaleString()} {lang === "en" ? "Lakh" : "သိန်း"}
+                        </p>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <p style={{ color: "#4a6a8a", fontSize: "10px", margin: "0 0 2px", fontFamily: ff }}>{lang === "en" ? "COMPLETION" : "ပြီးစီးမည့်ရက်"}</p>
+                        <p style={{ color: gold, fontSize: "13px", fontWeight: 600, margin: 0, fontFamily: ff }}>
+                          {lang === "en" ? project.completion : project.completionMy}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "14px" }}>
+                      {(lang === "en" ? project.features : project.featuresMy).map((f, i) => (
+                        <span key={i} style={{ background: "#faf7f2", border: "1px solid #e8dfc4", color: "#5a4a3a", fontSize: "10px", padding: "3px 8px", borderRadius: "999px", fontFamily: ff }}>
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* CTA Button */}
+                    <button style={{ width: "100%", background: project.status === "Register Interest" ? "transparent" : navy, color: project.status === "Register Interest" ? navy : gold, border: `2px solid ${project.status === "Register Interest" ? "#ddd5c0" : gold}`, padding: "12px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff, fontWeight: 600 }}>
+                      {project.status === "Register Interest"
+                        ? (lang === "en" ? " Register Interest" : " စိတ်ဝင်စားမှု မှတ်ပုံတင်ရန်")
+                        : (lang === "en" ? " Enquire Now" : " ယခု စုံစမ်းရန်")
+                      }
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+
+          {/* Advertise banner */}
+          <div style={{ maxWidth: "1200px", margin: "0 auto 48px", padding: "0 28px" }}>
+            <div style={{ background: navy, borderRadius: "8px", padding: "32px", border: `2px solid ${gold}`, textAlign: "center" }}>
+              <p style={{ color: gold, fontSize: "11px", letterSpacing: "3px", margin: "0 0 8px", fontFamily: ff }}>FOR DEVELOPERS</p>
+              <h3 style={{ color: cream, fontSize: "22px", fontWeight: 400, margin: "0 0 8px", fontFamily: ff }}>
+                {lang === "en" ? "Advertise Your Project Here" : "သင်၏ စီမံကိန်းကို ဤနေရာတွင် ကြော်ငြာပါ"}
+              </h3>
+              <p style={{ color: "#8fafc8", fontSize: "14px", margin: "0 0 20px", fontFamily: ff }}>
+                {lang === "en" ? "Reach thousands of serious property buyers across Myanmar. Featured placement, banner ads, and dedicated project pages available." : "မြန်မာတစ်နိုင်ငံလုံးရှိ အိမ်ခြံမြေဝယ်ယူသူများထံ ရောက်ရှိပါ။"}
+              </p>
+              <button style={{ background: gold, color: "#fff", border: "none", padding: "14px 36px", borderRadius: "6px", fontSize: "14px", cursor: "pointer", fontFamily: ff, fontWeight: 700 }}>
+                 {lang === "en" ? "Contact Us to Advertise" : "ကြော်ငြာရန် ဆက်သွယ်ပါ"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── FOOTER ── */}
+      <footer style={{ background: navy, padding: "32px 28px", textAlign: "center", borderTop: `2px solid ${gold}`, marginTop: "40px" }}>
+        <img src="/logo-footer.png" alt="Yume Estate" style={{ width: "160px", height: "auto", marginBottom: "16px" }} />
+        <p style={{ color: gold, fontSize: "11px", letterSpacing: "3px", margin: "0 0 8px", fontFamily: ff }}>{t.tagline}</p>
+        <p style={{ color: "#4a6a8a", fontSize: "12px", margin: 0, fontFamily: ff }}>© 2026 Yume Estate · Myanmar</p>
+      </footer>
+
+      {/* ── PROPERTY DETAIL MODAL ── */}
+      {selected && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+          onClick={e => { if (e.target === e.currentTarget) setSelected(null); }}>
+          <div style={{ background: cream, borderRadius: "8px", width: "100%", maxWidth: "900px", maxHeight: "92vh", overflowY: "auto", border: `2px solid ${gold}` }}>
+
+            {/* Modal header */}
+            <div style={{ background: navy, padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <span style={{ color: gold, fontSize: "12px", letterSpacing: "1px", fontFamily: ff }}>{selected.code}</span>
+                {selected.featured && <span style={{ background: gold, color: "#fff", fontSize: "10px", padding: "2px 8px", borderRadius: "2px" }}>{t.featured}</span>}
+                {selected.isNew && <span style={{ background: "#2d7a3a", color: "#fff", fontSize: "10px", padding: "2px 8px", borderRadius: "2px" }}>{t.new}</span>}
+                {/* View count in modal */}
+                <span style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "11px", padding: "2px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "4px", fontFamily: ff }}>
+                   {(viewCounts[selected.id] || 0).toLocaleString()} {lang === "my" ? "ကြိမ်" : "views"}
+                </span>
+              </div>
+              <button onClick={() => setSelected(null)} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "#fff", width: "32px", height: "32px", borderRadius: "50%", cursor: "pointer", fontSize: "18px" }}>✕</button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: "0" }}>
+
+              {/* Left side */}
+              <div style={{ padding: "24px" }}>
+                {/* Image gallery */}
+                <div style={{ height: "260px", background: `linear-gradient(135deg, ${selected.images[activeImage]}, ${selected.images[(activeImage+1)%3]})`, borderRadius: "6px", marginBottom: "10px", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" style={{ opacity: 0.25 }}><path d="M8 28L32 8L56 28V56H40V40H24V56H8V28Z" stroke="white" strokeWidth="3" strokeLinejoin="round"/></svg>
+                  <div style={{ position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "6px" }}>
+                    {selected.images.map((_, i) => (
+                      <button key={i} onClick={() => setActiveImage(i)}
+                        style={{ width: i === activeImage ? "24px" : "8px", height: "8px", borderRadius: "4px", background: i === activeImage ? gold : "rgba(255,255,255,0.5)", border: "none", cursor: "pointer", transition: "all 0.2s" }} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Thumbnail row */}
+                <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+                  {selected.images.map((img, i) => (
+                    <div key={i} onClick={() => setActiveImage(i)}
+                      style={{ flex: 1, height: "64px", background: `linear-gradient(135deg, ${img}, ${selected.images[(i+1)%3]})`, borderRadius: "4px", cursor: "pointer", border: i === activeImage ? `2px solid ${gold}` : "2px solid transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{ opacity: 0.25 }}><path d="M5 18L20 5L35 18V36H25V25H15V36H5V18Z" stroke="white" strokeWidth="2" strokeLinejoin="round"/></svg>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Title */}
+                <h1 style={{ color: navy, fontSize: "22px", fontWeight: 400, margin: "0 0 6px", lineHeight: 1.4, fontFamily: ff }}>
+                  {lang === "my" ? selected.titleMy : selected.title}
+                </h1>
+                <p style={{ color: "#7a6a5a", fontSize: "13px", margin: "0 0 20px", fontFamily: ff }}> {selected.location}</p>
+
+                {/* Stats */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "20px" }}>
+                  {[
+                    { icon: "", val: `${selected.bedrooms}`, label: t.bedrooms },
+                    { icon: "", val: `${selected.bathrooms}`, label: t.bathrooms },
+                    { icon: "", val: `${selected.area}`, label: t.sqft },
+                  ].map(s => (
+                    <div key={s.label} style={{ background: "#fff", border: "1px solid #e0d8cc", borderRadius: "6px", padding: "12px", textAlign: "center" }}>
+                      <div style={{ fontSize: "20px" }}>{s.icon}</div>
+                      <div style={{ color: navy, fontSize: "18px", fontWeight: 700, fontFamily: ff }}>{s.val}</div>
+                      <div style={{ color: "#7a6a5a", fontSize: "11px", fontFamily: ff }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Description */}
+                <h3 style={{ color: navy, fontSize: "14px", fontWeight: 600, margin: "0 0 8px", letterSpacing: "1px", fontFamily: ff }}>{t.description}</h3>
+                <p style={{ color: "#5a4a3a", fontSize: "14px", lineHeight: 1.7, margin: "0 0 20px", fontFamily: ff }}>
+                  {lang === "my" ? selected.descriptionMy : selected.description}
+                </p>
+
+                {/* Details table */}
+                <h3 style={{ color: navy, fontSize: "14px", fontWeight: 600, margin: "0 0 12px", letterSpacing: "1px", fontFamily: ff }}>{t.details}</h3>
+                <div style={{ background: "#fff", border: "1px solid #e0d8cc", borderRadius: "6px", overflow: "hidden" }}>
+                  {[
+                    [t.propertyType, selected.type],
+                    [t.listingType, selected.listing === "sale" ? t.forSaleBadge : t.forRentBadge],
+                    [t.floorArea, `${selected.area} ${t.sqft}`],
+                    [t.location, selected.location],
+                    ...(selected.floor ? [[lang === "en" ? "Floor" : "အထပ်", `${selected.floor} / ${selected.totalFloors}`]] : []),
+                  ].map(([label, val], i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 16px", borderBottom: i < 3 ? "1px solid #e8dfc4" : "none", background: i % 2 === 0 ? "#faf7f2" : "#fff" }}>
+                      <span style={{ color: "#7a6a5a", fontSize: "13px", fontFamily: ff }}>{label}</span>
+                      <span style={{ color: navy, fontSize: "13px", fontWeight: 600, fontFamily: ff }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right side — price + contact */}
+              <div style={{ borderLeft: "1px solid #e0d8cc", padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+
+                {/* Price card */}
+                <div style={{ background: navy, borderRadius: "8px", padding: "20px" }}>
+                  <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 4px", fontFamily: ff }}>
+                    {selected.listing === "sale" ? t.forSaleBadge : t.forRentBadge}
+                  </p>
+                  <p style={{ color: "#fff", fontSize: "26px", fontWeight: 700, margin: "0 0 4px", fontFamily: ff }}>
+                    {formatPrice(selected.price, selected.listing, lang)}
+                  </p>
+                  <p style={{ color: "#4a6a8a", fontSize: "12px", margin: 0, fontFamily: ff }}>{selected.code}</p>
+                </div>
+
+                {/* ── CONTACT / CHAT / BOOKING SECTION ── */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+
+                  {/* Agent card — always visible, owner number hidden */}
+                  <div style={{ background: "#fff", border: "1px solid #e0d8cc", borderRadius: "8px", padding: "14px" }}>
+                    <p style={{ color: "#7a6a5a", fontSize: "10px", letterSpacing: "2px", margin: "0 0 10px", fontFamily: ff }}>
+                      {lang === "my" ? "တာဝန်ခံ အေးဂျင့်" : "LISTING AGENT"}
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: navy, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", color: gold, fontWeight: 700, flexShrink: 0 }}>
+                        {selected.agentAvatar}
+                      </div>
+                      <div>
+                        <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: "0 0 2px", fontFamily: ff }}>{selected.agentName}</p>
+                        <p style={{ color: "#2d7a3a", fontSize: "11px", margin: 0, fontFamily: ff }}>✓ {lang === "my" ? "အတည်ပြုထားသော အေးဂျင့်" : "Verified Agent"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* STEP 1 — Contact form */}
+                  {contactStep === "form" && (
+                    <div style={{ background: "#fffbf4", border: `1px solid ${gold}`, borderRadius: "8px", padding: "16px" }}>
+                      <h3 style={{ color: navy, fontSize: "14px", fontWeight: 600, margin: "0 0 4px", fontFamily: ff }}>
+                         {lang === "my" ? "အေးဂျင့်နှင့် ဆက်သွယ်ရန်" : "Contact Agent"}
+                      </h3>
+                      <p style={{ color: "#7a6a5a", fontSize: "12px", margin: "0 0 12px", lineHeight: 1.6, fontFamily: ff }}>
+                        {lang === "my"
+                          ? "သင်၏ နာမည်နှင့် ဖုန်းနံပါတ် ထည့်သွင်းပါ — အေးဂျင့်မှ ၂၄ နာရီအတွင်း ဆက်သွယ်ပေးပါမည်"
+                          : "Enter your name and phone number — the agent will contact you within 24 hours"}
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <input value={contactName} onChange={e => setContactName(e.target.value)}
+                          placeholder={lang === "my" ? "သင်၏ နာမည်" : "Your full name"}
+                          style={{ padding: "11px 14px", borderRadius: "6px", border: "1px solid #ddd5c0", fontSize: "14px", fontFamily: ff, outline: "none" }} />
+                        <input value={contactPhone} onChange={e => setContactPhone(e.target.value)}
+                          placeholder={lang === "my" ? "သင်၏ ဖုန်းနံပါတ် (ဥပမာ ၀၉-xxxxxxxxx)" : "Your phone (e.g. 09-xxxxxxxxx)"} type="tel"
+                          style={{ padding: "11px 14px", borderRadius: "6px", border: "1px solid #ddd5c0", fontSize: "14px", fontFamily: ff, outline: "none" }} />
+                        <button onClick={handleSubmit} disabled={!contactName.trim() || !contactPhone.trim()}
+                          style={{ background: contactName.trim() && contactPhone.trim() ? navy : "#ddd5c0", color: gold, border: `2px solid ${contactName.trim() && contactPhone.trim() ? gold : "#ddd5c0"}`, padding: "13px", borderRadius: "6px", fontSize: "14px", cursor: contactName.trim() && contactPhone.trim() ? "pointer" : "not-allowed", fontFamily: ff, fontWeight: 600 }}>
+                           {lang === "my" ? "ချတ်ဖွင့်ရန် →" : "Start Chat →"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 2 — Persistent chatbox */}
+                  {contactStep === "chat" && (
+                    <div style={{ background: "#fff", border: `1px solid ${gold}`, borderRadius: "8px", overflow: "hidden" }}>
+
+                      {/* Chat header */}
+                      <div style={{ background: navy, padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", color: "#fff", fontWeight: 700, flexShrink: 0 }}>
+                          {selected.agentAvatar}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ color: "#fff", fontSize: "13px", fontWeight: 600, margin: "0 0 1px", fontFamily: ff }}>{selected.agentName}</p>
+                          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#4cd964" }} />
+                            <p style={{ color: "#8fafc8", fontSize: "11px", margin: 0, fontFamily: ff }}>
+                              {lang === "my" ? "အတည်ပြုထားသော အေးဂျင့်" : "Verified Agent"}
+                            </p>
+                          </div>
+                        </div>
+                        <div style={{ background: "rgba(189,148,104,0.2)", border: `1px solid ${gold}`, borderRadius: "4px", padding: "4px 10px" }}>
+                          <p style={{ color: gold, fontSize: "10px", margin: 0, fontFamily: ff, letterSpacing: "1px" }}>
+                            {lang === "my" ? "ရက် ၂၄ အတွင်း ဆက်သွယ်မည်" : "Replies within 24hrs"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Messages area */}
+                      <div style={{ height: "220px", overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: "10px", background: "#faf7f2" }}>
+                        {chatMessages.map((msg, i) => (
+                          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: msg.from === "user" ? "flex-end" : "flex-start", gap: "2px" }}>
+                            <div style={{ maxWidth: "85%", padding: "10px 13px", borderRadius: msg.from === "user" ? "14px 14px 0 14px" : "14px 14px 14px 0", background: msg.from === "user" ? navy : "#fff", color: msg.from === "user" ? "#f5f0e8" : navy, fontSize: "13px", lineHeight: 1.55, fontFamily: ff, border: msg.from === "bot" ? "1px solid #e0d8cc" : "none", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                              {msg.text}
+                            </div>
+                            <p style={{ color: "#aaa", fontSize: "10px", margin: 0, fontFamily: ff }}>{msg.time}</p>
+                          </div>
+                        ))}
+
+                      </div>
+
+                      {/* Chat input */}
+                      <div style={{ borderTop: "1px solid #e0d8cc", display: "flex", gap: "0", background: "#fff" }}>
+                        <input value={chatInput} onChange={e => setChatInput(e.target.value)}
+                          onKeyDown={e => e.key === "Enter" && handleChatSend()}
+                          placeholder={lang === "my" ? "မေးခွန်း သို့မဟုတ် မှတ်ချက် ရေးပါ..." : "Type a question or message..."}
+                          style={{ flex: 1, padding: "12px 14px", border: "none", outline: "none", fontSize: "13px", fontFamily: ff, background: "transparent" }} />
+                        <button onClick={handleChatSend} disabled={!chatInput.trim()}
+                          style={{ background: chatInput.trim() ? navy : "#f5f0e8", color: chatInput.trim() ? gold : "#ccc", border: "none", padding: "12px 18px", cursor: chatInput.trim() ? "pointer" : "not-allowed", fontSize: "18px", transition: "background 0.2s" }}>
+                          →
+                        </button>
+                      </div>
+
+                      {/* Info strip */}
+                      <div style={{ background: "#faf7f2", borderTop: "1px solid #e8dfc4", padding: "8px 14px", textAlign: "center" }}>
+                        <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>
+                           {lang === "my" ? "သင်၏ ဖုန်းနံပါတ်ကို အေးဂျင့်မှသာ မြင်နိုင်သည်" : "Your phone number is only visible to the agent"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Save + Share buttons */}
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button onClick={() => toggleSave(selected.id)}
+                      style={{ flex: 1, padding: "10px", border: "1px solid #ddd5c0", borderRadius: "4px", background: savedIds.includes(selected.id) ? "#fff0f0" : "#fff", cursor: "pointer", fontSize: "13px", fontFamily: ff, color: navy, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                      {savedIds.includes(selected.id) ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#bd9468" stroke="#bd9468" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                      ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bd9468" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                      )} {t.save}
+                    </button>
+                    <button style={{ flex: 1, padding: "10px", border: "1px solid #ddd5c0", borderRadius: "4px", background: "#fff", cursor: "pointer", fontSize: "13px", fontFamily: ff, color: navy }}>
+                       {t.share}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
