@@ -269,7 +269,21 @@ export default function HomePageSections({ lang, listingType, onPropertyClick, o
           submy="ရန်ကုန်တွင် သင်၏ အကောင်းဆုံး ရပ်ကွက် ရှာပါ"
           lang={lang}
         />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "12px" }}>
+        <>
+          <style>{`
+            .yume-loc-grid {
+              display: grid;
+              grid-template-columns: repeat(6, 1fr);
+              gap: 12px;
+            }
+            @media (max-width: 768px) {
+              .yume-loc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+              }
+            }
+          `}</style>
+          <div className="yume-loc-grid">
           {[
             { en: "Universities", my: "တက္ကသိုလ်", count: 284, top: "#111d2b" },
             { en: "Int'l Schools", my: "နိုင်ငံတကာ ကျောင်း", count: 156, top: "#166534" },
@@ -306,7 +320,8 @@ export default function HomePageSections({ lang, listingType, onPropertyClick, o
               </button>
             );
           })}
-        </div>
+          </div>
+        </>
       </Section>
 
       {/* ══ 3. FIND BY LIFESTYLE ══ */}
