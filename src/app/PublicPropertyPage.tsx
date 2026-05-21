@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import HomePageSections from "./HomePageSections";
 import CategoryPage from "./CategoryPage";
+import MapSearchView from "@/components/MapSearchView";
 
 type Lang = "en" | "my";
 
@@ -389,7 +390,7 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
     sustainable: { id: "sustainable", icon: "", titleEn: "Sustainable Living", titleMy: "သဘာဝပတ်ဝန်းကျင်နှင့် ညီညွတ်သော နေထိုင်မှု", descEn: "Eco-friendly homes with green spaces", descMy: "သဘာဝပတ်ဝန်းကျင်ကို ချစ်မြတ်နိုးသူများအတွက် နေအိမ်များ", filter: (p: any) => p.sustainable || ["Hlaingtharya", "Insein"].includes(p.township) },
     handpicked: { id: "handpicked", icon: "", titleEn: "Handpicked For You", titleMy: "သင့်အတွက် ကျွမ်းကျင်စွာ ရွေးချယ်ထားသည်", descEn: "Curated selections based on what buyers love", descMy: "မြန်မာ ဝယ်သူများ ယခု အကြိုက်ဆုံးကို အခြေခံ၍", filter: (p: any) => p.featured || p.status === "available" },
   };
-  const [mainTab, setMainTab] = useState<"properties" | "projects" | "agents">("properties");
+  const [mainTab, setMainTab] = useState<"properties" | "projects" | "agents" | "map">("properties");
   const [projectCity, setProjectCity] = useState("all");
   const [agentSearch, setAgentSearch] = useState("");
   const [agentRegion, setAgentRegion] = useState("all");
@@ -400,6 +401,8 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
   const [agentContactName, setAgentContactName] = useState("");
   const [agentContactPhone, setAgentContactPhone] = useState("");
   const [agentContactSubmitted, setAgentContactSubmitted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuSection, setMenuSection] = useState<"buy" | "rent" | "projects" | "commercial" | null>(null);
   const [search, setSearch] = useState("");
   const [listingFilter, setListingFilter] = useState<"all" | "sale" | "rent">("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -525,16 +528,166 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
   return (
     <div style={{ minHeight: "100vh", background: "#eee8dc", fontFamily: ff }}>
 
-      {/* ── HEADER ── */}
-      <header style={{ background: "#fbf3da", padding: "0 28px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `2px solid ${gold}`, position: "sticky", top: 0, zIndex: 100 }}>
-        <img src="/logo.png" alt="Yume Estate" style={{ width: "160px", height: "auto" }} />
-        <nav style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <div style={{ display: "flex", border: `1px solid ${gold}`, borderRadius: "4px", overflow: "hidden" }}>
-            <button onClick={() => setLang("en")} style={{ padding: "6px 14px", background: lang === "en" ? navy : "transparent", color: lang === "en" ? "#ffffff" : "#333333", border: "none", cursor: "pointer", fontSize: "12px", fontWeight: 700, borderRadius: "4px", transition: "all 0.2s" }}>EN</button>
-            <button onClick={() => setLang("my")} style={{ padding: "6px 14px", background: lang === "my" ? navy : "transparent", color: lang === "my" ? "#ffffff" : "#333333", border: "none", cursor: "pointer", fontSize: "12px", fontFamily: ff, borderRadius: "4px", transition: "all 0.2s" }}>မြန်မာ</button>
+      {/* ── HAMBURGER MENU OVERLAY ── */}
+      {menuOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex" }}>
+          <div onClick={() => { setMenuOpen(false); setMenuSection(null); }} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)" }} />
+          <div style={{ position: "relative", width: "min(100%, 400px)", background: "#fff", height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", boxShadow: "4px 0 40px rgba(0,0,0,0.25)", marginLeft: "auto" }}>
+
+            {/* Drawer header */}
+            <div style={{ background: navy, padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `3px solid ${gold}`, flexShrink: 0 }}>
+              <img src="/logo.png" alt="Yume Estate" style={{ height: "38px", filter: "brightness(10)" }} />
+              <button onClick={() => { setMenuOpen(false); setMenuSection(null); }} aria-label="Close"
+                style={{ background: "rgba(255,255,255,0.1)", border: `1px solid rgba(189,148,104,0.4)`, borderRadius: "6px", cursor: "pointer", color: "#fff", padding: "8px", display: "flex" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* Language */}
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid #f0ece4", display: "flex", gap: "8px", flexShrink: 0 }}>
+              {(["en", "my"] as const).map(l => (
+                <button key={l} onClick={() => setLang(l)}
+                  style={{ flex: 1, padding: "9px", borderRadius: "6px", border: `1px solid ${gold}`, background: lang === l ? navy : "transparent", color: lang === l ? gold : "#7a6a5a", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: ff }}>
+                  {l === "en" ? "EN · English" : "MY · မြန်မာ"}
+                </button>
+              ))}
+            </div>
+
+            {/* Nav items */}
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              {[
+                { key: "buy",        en: "Buy",               my: "ဝယ်ရန်",           sub: true  },
+                { key: "rent",       en: "Rent",              my: "ငှားရမ်းရန်",      sub: true  },
+                { key: "projects",   en: "New Projects",      my: "စီမံကိန်းသစ်",     sub: false },
+                { key: "commercial", en: "Commercials",       my: "စီးပွားရေး",       sub: true  },
+                { key: "guides",     en: "Guides",            my: "လမ်းညွှန်",       sub: false },
+                { key: "advertise",  en: "Advertise with us", my: "ကြော်ငြာပါ",      sub: false },
+              ].map(item => (
+                <div key={item.key}>
+                  <button onClick={() => {
+                    if (item.key === "buy")        { setListingFilter("sale"); setMenuSection(menuSection === "buy" ? null : "buy"); }
+                    else if (item.key === "rent")  { setListingFilter("rent"); setMenuSection(menuSection === "rent" ? null : "rent"); }
+                    else if (item.key === "commercial") { setMenuSection(menuSection === "commercial" ? null : "commercial"); }
+                    else if (item.key === "projects") { setMainTab("projects"); setMenuOpen(false); setMenuSection(null); }
+                    else { setMenuOpen(false); setMenuSection(null); }
+                  }}
+                    style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", background: menuSection === item.key ? "#faf7f2" : "transparent", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer" }}>
+                    <span style={{ color: navy, fontSize: "16px", fontWeight: menuSection === item.key ? 700 : 500, fontFamily: ff }}>{lang === "en" ? item.en : item.my}</span>
+                    {item.sub && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ transform: menuSection === item.key ? "rotate(90deg)" : "none", transition: "transform 0.2s" }}><polyline points="9 18 15 12 9 6"/></svg>
+                    )}
+                  </button>
+
+                  {/* BUY submenu */}
+                  {item.key === "buy" && menuSection === "buy" && (
+                    <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
+                      <button onClick={() => { setMainTab("properties"); setListingFilter("sale"); setRegionFilter("all"); setMenuOpen(false); setMenuSection(null); }}
+                        style={{ width: "100%", padding: "14px 20px 14px 40px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
+                        <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>{lang === "en" ? "→ View all properties for sale" : "→ ရောင်းရန် အိမ်ခြံမြေ အားလုံး ကြည့်ရန်"}</span>
+                      </button>
+                      <div style={{ padding: "12px 20px 12px 40px" }}>
+                        <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 10px", fontFamily: ff }}>LOCATION</p>
+                        {[
+                          { en: "Yangon",     my: "ရန်ကုန်",      r: "yangon"     },
+                          { en: "Mandalay",   my: "မန္တလေး",      r: "mandalay"   },
+                          { en: "Naypyidaw",  my: "နေပြည်တော်",   r: "naypyidaw"  },
+                          { en: "Bago",       my: "ပဲခူး",         r: "bago"       },
+                          { en: "Ayeyarwady", my: "အင်းဝ",         r: "ayeyarwady" },
+                        ].map(loc => (
+                          <button key={loc.r} onClick={() => { setMainTab("properties"); setListingFilter("sale"); setRegionFilter(loc.r); setMenuOpen(false); setMenuSection(null); }}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? loc.en : loc.my}</span>
+                          </button>
+                        ))}
+                        <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "14px 0 10px", fontFamily: ff }}>TYPE</p>
+                        {[
+                          { en: "Condo",     my: "ကွန်ဒို",   t: "condo"     },
+                          { en: "House",     my: "အိမ်",       t: "house"     },
+                          { en: "Land",      my: "မြေ",        t: "land"      },
+                          { en: "Apartment", my: "တိုက်ခန်း", t: "apartment" },
+                        ].map(type => (
+                          <button key={type.t} onClick={() => { setMainTab("properties"); setListingFilter("sale"); setTypeFilter(type.t); setMenuOpen(false); setMenuSection(null); }}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? type.en : type.my}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* RENT submenu */}
+                  {item.key === "rent" && menuSection === "rent" && (
+                    <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
+                      <button onClick={() => { setMainTab("properties"); setListingFilter("rent"); setRegionFilter("all"); setMenuOpen(false); setMenuSection(null); }}
+                        style={{ width: "100%", padding: "14px 20px 14px 40px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
+                        <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>{lang === "en" ? "→ View all properties for rent" : "→ ငှားရမ်းရန် အိမ်ခြံမြေ အားလုံး ကြည့်ရန်"}</span>
+                      </button>
+                      <div style={{ padding: "12px 20px 12px 40px" }}>
+                        <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 10px", fontFamily: ff }}>LOCATION</p>
+                        {[
+                          { en: "Yangon",    my: "ရန်ကုန်",    r: "yangon"    },
+                          { en: "Mandalay",  my: "မန္တလေး",    r: "mandalay"  },
+                          { en: "Naypyidaw", my: "နေပြည်တော်", r: "naypyidaw" },
+                        ].map(loc => (
+                          <button key={loc.r} onClick={() => { setMainTab("properties"); setListingFilter("rent"); setRegionFilter(loc.r); setMenuOpen(false); setMenuSection(null); }}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? loc.en : loc.my}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* COMMERCIAL submenu */}
+                  {item.key === "commercial" && menuSection === "commercial" && (
+                    <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
+                      <button onClick={() => { setMainTab("properties"); setTypeFilter("commercial"); setMenuOpen(false); setMenuSection(null); }}
+                        style={{ width: "100%", padding: "14px 20px 14px 40px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
+                        <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>{lang === "en" ? "→ View all commercial properties" : "→ စီးပွားရေး အိမ်ခြံမြေ အားလုံး"}</span>
+                      </button>
+                      <div style={{ padding: "12px 20px 12px 40px" }}>
+                        {[
+                          { en: "Office Space", my: "ရုံးခန်း"   },
+                          { en: "Shop / Retail", my: "ဆိုင်ခန်း" },
+                          { en: "Warehouse",     my: "ဂိုဒေါင်"  },
+                          { en: "Factory",       my: "စက်ရုံ"    },
+                        ].map(type => (
+                          <button key={type.en} onClick={() => { setMainTab("properties"); setTypeFilter("commercial"); setMenuOpen(false); setMenuSection(null); }}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? type.en : type.my}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Agent login footer */}
+            <div style={{ padding: "18px 20px", borderTop: `2px solid ${gold}`, background: "#faf7f2", flexShrink: 0 }}>
+              <button onClick={() => { onAgentLoginClick?.(); setMenuOpen(false); }}
+                style={{ width: "100%", background: navy, color: gold, border: `2px solid ${gold}`, padding: "14px", borderRadius: "8px", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: ff, letterSpacing: "1px" }}>
+                {lang === "en" ? "AGENT LOGIN" : "အေးဂျင့် ဝင်ရောက်ရန်"}
+              </button>
+            </div>
           </div>
-          <button onClick={onAgentLoginClick} style={{ background: navy, color: "#ffffff", padding: "8px 18px", borderRadius: "4px", fontSize: "12px", border: `1px solid ${gold}`, cursor: "pointer", letterSpacing: "1px", fontFamily: ff }}>{t.agentLogin}</button>
-        </nav>
+        </div>
+      )}
+
+      {/* ── HEADER ── */}
+      <header style={{ background: "#fbf3da", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `2px solid ${gold}`, position: "sticky", top: 0, zIndex: 100, height: "64px" }}>
+        <img src="/logo.png" alt="Yume Estate" style={{ height: "44px", width: "auto" }} />
+        <button onClick={() => setMenuOpen(true)} aria-label="Open menu"
+          style={{ background: navy, border: `1px solid ${gold}`, borderRadius: "8px", padding: "10px 13px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "5px", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "20px", height: "2px", background: gold, borderRadius: "2px" }} />
+          <div style={{ width: "20px", height: "2px", background: gold, borderRadius: "2px" }} />
+          <div style={{ width: "20px", height: "2px", background: gold, borderRadius: "2px" }} />
+        </button>
       </header>
 
       {/* ── TAGLINE ── */}
@@ -543,10 +696,18 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
       </div>
 
       {/* ── MAIN TABS ── */}
-      <div style={{ background: "#ffffff", borderBottom: "1px solid #eeeeee", display: "flex", justifyContent: "center" }}>
-        {([["properties", lang === "en" ? "Properties" : "အိမ်ခြံမြေများ"], ["projects", lang === "en" ? "New Projects" : "စီမံကိန်းများ"], ["agents", lang === "en" ? "Agents" : "အေးဂျင့်များ"]] as const).map(([tab, label]) => (
-          <button key={tab} onClick={() => setMainTab(tab)}
-            style={{ padding: "14px 32px", background: "transparent", border: "none", borderBottom: mainTab === tab ? "3px solid #111d2b" : "3px solid transparent", color: mainTab === tab ? "#111111" : "#888888", fontSize: "14px", fontWeight: mainTab === tab ? 700 : 400, cursor: "pointer", fontFamily: ff, transition: "all 0.2s" }}>
+      <div style={{ background: "#ffffff", borderBottom: "1px solid #eeeeee", display: "flex", justifyContent: "center", overflowX: "auto" }}>
+        {([
+          ["properties", lang === "en" ? "Properties" : "အိမ်ခြံမြေများ"],
+          ["map", lang === "en" ? "Map Search" : "မြေပုံ ရှာဖွေရန်"],
+          ["projects", lang === "en" ? "New Projects" : "စီမံကိန်းများ"],
+          ["agents", lang === "en" ? "Agents" : "အေးဂျင့်များ"],
+        ] as const).map(([tab, label]) => (
+          <button key={tab} onClick={() => setMainTab(tab as any)}
+            style={{ padding: "14px 20px", background: "transparent", border: "none", borderBottom: mainTab === tab ? `3px solid ${navy}` : "3px solid transparent", color: mainTab === tab ? navy : "#888888", fontSize: "14px", fontWeight: mainTab === tab ? 700 : 400, cursor: "pointer", fontFamily: ff, transition: "all 0.2s", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "6px" }}>
+            {tab === "map" && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: mainTab === tab ? 1 : 0.5 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            )}
             {label}
           </button>
         ))}
@@ -908,222 +1069,223 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
 
       </>}
 
+      {/* ── MAP SEARCH ── */}
+      {mainTab === "map" && (
+        <MapSearchView
+          properties={PROPERTIES}
+          lang={lang}
+          onPropertyClick={(p) => openProperty(p)}
+        />
+      )}
+
       {/* ── AGENT DIRECTORY ── */}
       {mainTab === "agents" && (
-        <div style={{ background: "#eee8dc", minHeight: "60vh" }}>
+        <div style={{ background: "#f8f5f0", minHeight: "60vh" }}>
 
-          {/* Agent search panel */}
-          <div style={{ background: `linear-gradient(160deg, ${navy}, ${darkNavy})`, padding: "40px 28px", textAlign: "center" }}>
-            <h1 style={{ color: cream, fontSize: "28px", fontWeight: 400, margin: "0 0 6px", fontFamily: ff }}>
-              {lang === "en" ? "Find a Trusted Agent" : "ယုံကြည်ရသော အေးဂျင့် ရှာဖွေပါ"}
+          {/* Hero banner */}
+          <div style={{ background: `linear-gradient(150deg, ${navy} 0%, #1a2e45 100%)`, padding: "48px 24px 36px", textAlign: "center" }}>
+            <p style={{ color: gold, fontSize: "11px", letterSpacing: "4px", margin: "0 0 10px", fontFamily: ff }}>
+              {lang === "en" ? "VERIFIED PROFESSIONALS" : "အတည်ပြုထားသော ကျွမ်းကျင်သူများ"}
+            </p>
+            <h1 style={{ color: "#fff", fontSize: "clamp(24px, 5vw, 36px)", fontWeight: 400, margin: "0 0 10px", fontFamily: ff, letterSpacing: "-0.5px" }}>
+              {lang === "en" ? "Find Your Agent" : "သင်၏ အေးဂျင့် ရှာပါ"}
             </h1>
-            <p style={{ color: gold, fontSize: "13px", margin: "0 0 28px", letterSpacing: lang === "en" ? "1px" : "0", fontFamily: ff }}>
-              {lang === "en" ? "All agents are verified Yume Estate subscribers" : "အေးဂျင့်အားလုံးသည် Yume Estate ၏ အတည်ပြုထားသော အဖွဲ့ဝင်များ ဖြစ်သည်"}
+            <p style={{ color: "#8fafc8", fontSize: "14px", margin: "0 0 28px", fontFamily: ff }}>
+              {lang === "en" ? "Every agent is verified, licensed and rated by real buyers" : "အေးဂျင့်တိုင်းကို အစစ်အမှန် ဝယ်သူများမှ အတည်ပြုပြီး အဆင့်သတ်မှတ်ထားသည်"}
             </p>
 
-            {/* Search panel card */}
-            <div style={{ maxWidth: "700px", margin: "0 auto", background: "#fff", borderRadius: "8px", overflow: "hidden", border: `2px solid ${gold}`, boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}>
-              <div style={{ background: gold, padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <p style={{ color: "#fff", fontSize: "13px", fontWeight: 700, margin: 0, letterSpacing: lang === "en" ? "2px" : "0", fontFamily: ff }}>
-                   {lang === "en" ? "SEARCH AGENTS & AGENCIES" : "အေးဂျင့် & အေဂျင်စီ ရှာဖွေရန်"}
-                </p>
-                <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "11px", margin: 0, fontFamily: ff }}>
-                  {AGENTS.filter(a => {
-                    const name = lang === "en" ? a.agency : a.agencyMy;
-                    const agentName = lang === "en" ? a.name : a.nameMy;
-                    const matchSearch = !agentSearch || name.toLowerCase().includes(agentSearch.toLowerCase()) || agentName.toLowerCase().includes(agentSearch.toLowerCase());
-                    const matchRegion = agentRegion === "all" || a.region === agentRegion;
-                    const matchTownship = agentTownship === "all" || a.township === agentTownship;
-                    const matchSpec = agentSpecialization === "all" || a.specializations.includes(agentSpecialization);
-                    const matchVerified = !verifiedOnly || a.verified;
-                    return matchSearch && matchRegion && matchTownship && matchSpec && matchVerified;
-                  }).length} {lang === "en" ? "agents found" : "အေးဂျင့် တွေ့ရှိသည်"}
-                </p>
-              </div>
-
-              <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
-
-                {/* Company / Agent name */}
-                <div style={{ position: "relative" }}>
-                  <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", fontSize: "16px" }}></span>
-                  <input value={agentSearch} onChange={e => setAgentSearch(e.target.value)}
-                    placeholder={lang === "en" ? "Company name or agent name..." : "ကုမ္ပဏီ နာမည် သို့မဟုတ် အေးဂျင့် နာမည်..."}
-                    style={{ width: "100%", padding: "12px 16px 12px 42px", border: `1px solid #ddd5c0`, borderRadius: "6px", fontSize: "14px", fontFamily: ff, color: navy, boxSizing: "border-box", outline: "none" }} />
+            {/* Stats row */}
+            <div style={{ display: "flex", justifyContent: "center", gap: "clamp(20px, 5vw, 60px)", flexWrap: "wrap" }}>
+              {[
+                { num: "120+", en: "Active Agents", my: "တက်ကြွသောအေးဂျင့်" },
+                { num: "4,800+", en: "Properties Listed", my: "တင်ထားသောအိမ်ခြံမြေ" },
+                { num: "98%", en: "Verified", my: "အတည်ပြုပြီး" },
+              ].map((s, i) => (
+                <div key={i} style={{ textAlign: "center" }}>
+                  <p style={{ color: gold, fontSize: "clamp(20px, 4vw, 28px)", fontWeight: 700, margin: "0 0 4px", fontFamily: ff }}>{s.num}</p>
+                  <p style={{ color: "#8fafc8", fontSize: "12px", margin: 0, fontFamily: ff }}>{lang === "en" ? s.en : s.my}</p>
                 </div>
-
-                {/* Region + Township cascade */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <select value={agentRegion} onChange={e => { setAgentRegion(e.target.value); setAgentTownship("all"); }}
-                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                    <option value="all">{lang === "en" ? "All Regions" : "ဒေသများ အားလုံး"}</option>
-                    {Object.entries(REGIONS).map(([key, r]) => (
-                      <option key={key} value={key}>{lang === "en" ? r.en : r.my}</option>
-                    ))}
-                  </select>
-                  <select value={agentTownship} onChange={e => setAgentTownship(e.target.value)}
-                    disabled={agentRegion === "all"}
-                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid ${agentRegion === "all" ? "#e8dfc4" : "#ddd5c0"}`, background: agentRegion === "all" ? "#f5f0e8" : "#faf7f2", fontSize: "13px", fontFamily: ff, color: agentRegion === "all" ? "#aaa" : navy, cursor: agentRegion === "all" ? "not-allowed" : "pointer" }}>
-                    <option value="all">{lang === "en" ? (agentRegion === "all" ? "Select Region First" : "All Townships") : (agentRegion === "all" ? "ဒေသ အရင်ရွေးပါ" : "မြို့နယ်အားလုံး")}</option>
-                    {agentRegion !== "all" && REGIONS[agentRegion]?.townships.map(tp => (
-                      <option key={tp.en} value={tp.en}>{lang === "en" ? tp.en : tp.my}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Specialization filter */}
-                <select value={agentSpecialization} onChange={e => setAgentSpecialization(e.target.value)}
-                  style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                  <option value="all">{lang === "en" ? "All Specializations" : "အထူးကျွမ်းကျင်မှု အားလုံး"}</option>
-                  {["Condo", "Apartment", "House", "Land", "Penthouse", "Studio"].map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-
-                {/* Verified only toggle */}
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", background: "#faf7f2", borderRadius: "6px", border: "1px solid #ddd5c0" }}>
-                  <input type="checkbox" id="verifiedOnly" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)}
-                    style={{ width: "18px", height: "18px", accentColor: gold, cursor: "pointer" }} />
-                  <label htmlFor="verifiedOnly" style={{ color: navy, fontSize: "13px", cursor: "pointer", fontFamily: ff }}>
-                    ✓ {lang === "en" ? "Show verified agents only" : "အတည်ပြုထားသော အေးဂျင့်များသာ ပြပါ"}
-                  </label>
-                </div>
-
-                {/* Clear button */}
-                {(agentSearch || agentRegion !== "all" || agentTownship !== "all" || agentSpecialization !== "all" || verifiedOnly) && (
-                  <button onClick={() => { setAgentSearch(""); setAgentRegion("all"); setAgentTownship("all"); setAgentSpecialization("all"); setVerifiedOnly(false); }}
-                    style={{ width: "100%", background: "transparent", color: "#7a6a5a", border: "1px solid #ddd5c0", padding: "10px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff }}>
-                    ✕ {lang === "en" ? "Clear all filters" : "စစ်ထုတ်မှုများ ရှင်းပါ"}
-                  </button>
-                )}
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Agent cards */}
-          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 28px", display: "flex", flexDirection: "column", gap: "20px" }}>
-            {AGENTS
-              .filter(a => {
+          {/* Search bar */}
+          <div style={{ background: "#fff", borderBottom: "1px solid #e0d8cc", padding: "16px 24px" }}>
+            <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: "200px", position: "relative" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input value={agentSearch} onChange={e => setAgentSearch(e.target.value)}
+                  placeholder={lang === "en" ? "Search by name or agency..." : "နာမည် သို့မဟုတ် အေဂျင်စီ ရှာပါ..."}
+                  style={{ width: "100%", padding: "12px 14px 12px 38px", borderRadius: "8px", border: "1px solid #e0d8cc", fontSize: "14px", fontFamily: ff, boxSizing: "border-box", outline: "none" }} />
+              </div>
+              <select value={agentRegion} onChange={e => { setAgentRegion(e.target.value); setAgentTownship("all"); }}
+                style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #e0d8cc", fontSize: "14px", fontFamily: ff, background: "#fff", minWidth: "140px" }}>
+                <option value="all">{lang === "en" ? "All Regions" : "မြေပိုင်နက်အားလုံး"}</option>
+                {Object.entries(REGIONS).map(([k, v]) => <option key={k} value={k}>{lang === "en" ? v.en : v.my}</option>)}
+              </select>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", padding: "0 4px" }}>
+                <input type="checkbox" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)} style={{ width: "16px", height: "16px", accentColor: gold }} />
+                <span style={{ color: "#5a4a3a", fontSize: "13px", fontFamily: ff, whiteSpace: "nowrap" }}>{lang === "en" ? "Verified only" : "အတည်ပြုထားသာ"}</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Agent cards grid */}
+          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "32px clamp(16px, 4vw, 28px)" }}>
+            <p style={{ color: "#7a6a5a", fontSize: "13px", margin: "0 0 24px", fontFamily: ff }}>
+              <strong style={{ color: navy }}>{AGENTS.filter(a => {
                 const name = lang === "en" ? a.name : a.nameMy;
                 const agency = lang === "en" ? a.agency : a.agencyMy;
-                const matchSearch = !agentSearch || name.toLowerCase().includes(agentSearch.toLowerCase()) || agency.toLowerCase().includes(agentSearch.toLowerCase());
-                const matchRegion = agentRegion === "all" || a.region === agentRegion;
-                const matchTownship = agentTownship === "all" || a.township === agentTownship;
-                const matchSpec = agentSpecialization === "all" || a.specializations.includes(agentSpecialization);
-                const matchVerified = !verifiedOnly || a.verified;
-                return matchSearch && matchRegion && matchTownship && matchSpec && matchVerified;
-              })
-              .map(agent => (
-                <div key={agent.id} style={{ background: "#fff", borderRadius: "8px", border: agent.featured ? `2px solid ${gold}` : "1px solid #e0d8cc", overflow: "hidden" }}>
+                return (!agentSearch || name.toLowerCase().includes(agentSearch.toLowerCase()) || agency.toLowerCase().includes(agentSearch.toLowerCase())) &&
+                  (agentRegion === "all" || a.region === agentRegion) &&
+                  (!verifiedOnly || a.verified);
+              }).length}</strong> {lang === "en" ? "agents found" : "ဦး တွေ့ရသည်"}
+            </p>
 
-                  {/* Featured banner */}
-                  {agent.featured && (
-                    <div style={{ background: gold, padding: "6px 20px" }}>
-                      <span style={{ color: "#fff", fontSize: "11px", fontWeight: 700, letterSpacing: "2px", fontFamily: ff }}>⭐ {lang === "en" ? "FEATURED AGENT" : "အထူးဖော်ပြ အေးဂျင့်"}</span>
-                    </div>
-                  )}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 340px), 1fr))", gap: "20px" }}>
+              {AGENTS
+                .filter(a => {
+                  const name = lang === "en" ? a.name : a.nameMy;
+                  const agency = lang === "en" ? a.agency : a.agencyMy;
+                  return (!agentSearch || name.toLowerCase().includes(agentSearch.toLowerCase()) || agency.toLowerCase().includes(agentSearch.toLowerCase())) &&
+                    (agentRegion === "all" || a.region === agentRegion) &&
+                    (!verifiedOnly || a.verified);
+                })
+                .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
+                .map(agent => (
+                  <div key={agent.id} style={{
+                    background: "#fff",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    border: agent.featured ? `2px solid ${gold}` : "1px solid #e8dfc8",
+                    boxShadow: agent.featured ? "0 8px 32px rgba(189,148,104,0.15)" : "0 2px 12px rgba(0,0,0,0.06)",
+                    transition: "transform 0.2s, box-shadow 0.2s",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 16px 40px rgba(0,0,0,0.12)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "none"; (e.currentTarget as HTMLDivElement).style.boxShadow = agent.featured ? "0 8px 32px rgba(189,148,104,0.15)" : "0 2px 12px rgba(0,0,0,0.06)"; }}>
 
-                  <div style={{ padding: "24px", display: "flex", gap: "24px", flexWrap: "wrap" }}>
-
-                    {/* Avatar */}
-                    <div style={{ flexShrink: 0, textAlign: "center" }}>
-                      <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: navy, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", color: gold, fontWeight: 700, margin: "0 auto 8px", border: `3px solid ${gold}`, textAlign: "center", lineHeight: 1.2 }}>
-                        {agent.agency.split(" ").slice(0,2).map(w => w[0]).join("")}
+                    {/* Card top — navy banner with avatar */}
+                    <div style={{ background: `linear-gradient(135deg, ${navy}, #1a2e45)`, padding: "24px 24px 0", position: "relative" }}>
+                      {agent.featured && (
+                        <div style={{ position: "absolute", top: "12px", right: "12px", background: gold, color: "#fff", fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", padding: "4px 10px", borderRadius: "4px", fontFamily: ff }}>
+                          ★ FEATURED
+                        </div>
+                      )}
+                      {/* Avatar */}
+                      <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", color: navy, fontWeight: 800, border: `3px solid ${gold}`, marginBottom: "16px", fontFamily: ff }}>
+                        {agent.avatar}
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
-                        <span style={{ display: "flex", gap: "2px", alignItems: "center" }}>
-                          {Array.from({ length: Math.floor(agent.rating) }).map((_, si) => (
-                            <svg key={si} width="13" height="13" viewBox="0 0 24 24" fill="#bd9468" stroke="#bd9468" strokeWidth="1" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                          ))}
-                        </span>
-                        <span style={{ color: "#7a6a5a", fontSize: "12px", fontFamily: ff }}>{agent.rating}</span>
-                      </div>
-                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: "2px 0 0", fontFamily: ff }}>({agent.reviews} {lang === "en" ? "reviews" : "သုံးသပ်ချက်"})</p>
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: "200px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "4px" }}>
-                        <h2 style={{ color: navy, fontSize: "20px", fontWeight: 600, margin: 0, fontFamily: ff }}>
+                      {/* Name + verified */}
+                      <div style={{ paddingBottom: "20px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                          <p style={{ color: "#fff", fontSize: "17px", fontWeight: 600, margin: 0, fontFamily: ff }}>
+                            {lang === "en" ? agent.name : agent.nameMy}
+                          </p>
+                          {agent.verified && (
+                            <span style={{ background: "rgba(45,122,58,0.25)", color: "#4cd964", fontSize: "10px", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(45,122,58,0.4)", fontFamily: ff }}>
+                              ✓ {lang === "en" ? "Verified" : "အတည်ပြုပြီး"}
+                            </span>
+                          )}
+                        </div>
+                        <p style={{ color: gold, fontSize: "12px", margin: "4px 0 0", fontFamily: ff }}>
                           {lang === "en" ? agent.agency : agent.agencyMy}
-                        </h2>
-                        {agent.verified && (
-                          <span style={{ background: "#e8f5e9", color: "#2d7a3a", fontSize: "11px", padding: "3px 10px", borderRadius: "999px", border: "1px solid #2d7a3a", fontFamily: ff }}>
-                            ✓ {lang === "en" ? "Verified" : "အတည်ပြုပြီး"}
-                          </span>
-                        )}
+                        </p>
+                        <p style={{ color: "#8fafc8", fontSize: "11px", margin: "4px 0 0", fontFamily: ff }}>
+                          {agent.township} · {lang === "en" ? REGIONS[agent.region]?.en : REGIONS[agent.region]?.my}
+                        </p>
                       </div>
-                      <p style={{ color: gold, fontSize: "13px", margin: "0 0 8px", fontFamily: ff }}>
-                        {lang === "en" ? agent.name : agent.nameMy}
-                      </p>
-                      <p style={{ color: "#5a4a3a", fontSize: "13px", margin: "0 0 12px", lineHeight: 1.6, fontFamily: ff }}>
+                    </div>
+
+                    {/* Stats strip */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", background: "#faf7f2", borderBottom: "1px solid #e8dfc8" }}>
+                      {[
+                        { val: agent.activeListings, en: "Listings", my: "လစ်ဆင်း" },
+                        { val: agent.totalSold, en: "Sold", my: "ရောင်းပြီး" },
+                        { val: agent.rating, en: "Rating", my: "အဆင့်" },
+                      ].map((s, i) => (
+                        <div key={i} style={{ padding: "12px 8px", textAlign: "center", borderRight: i < 2 ? "1px solid #e8dfc8" : "none" }}>
+                          <p style={{ color: gold, fontSize: "16px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}>{s.val}</p>
+                          <p style={{ color: "#7a6a5a", fontSize: "10px", margin: 0, fontFamily: ff }}>{lang === "en" ? s.en : s.my}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Bio + specializations */}
+                    <div style={{ padding: "16px 20px" }}>
+                      <p style={{ color: "#5a4a3a", fontSize: "12px", lineHeight: 1.6, margin: "0 0 12px", fontFamily: ff, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                         {lang === "en" ? agent.bio : agent.bioMy}
                       </p>
-
-                      {/* Specializations */}
-                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "16px" }}>
                         {(lang === "en" ? agent.specializations : agent.specializationsMy).map((s, i) => (
-                          <span key={i} style={{ background: "#faf7f2", border: `1px solid ${gold}`, color: navy, fontSize: "11px", padding: "4px 12px", borderRadius: "999px", fontFamily: ff }}>{s}</span>
+                          <span key={i} style={{ background: "#f5f0e8", border: `1px solid ${gold}`, color: navy, fontSize: "10px", padding: "3px 10px", borderRadius: "999px", fontFamily: ff }}>{s}</span>
                         ))}
+                        <span style={{ background: "#f0faf2", border: "1px solid #2d7a3a", color: "#2d7a3a", fontSize: "10px", padding: "3px 10px", borderRadius: "999px", fontFamily: ff }}>
+                          {agent.responseTime}
+                        </span>
                       </div>
 
-                      {/* Stats */}
-                      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-                        <div>
-                          <p style={{ color: gold, fontSize: "18px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}>{agent.activeListings}</p>
-                          <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Active Listings" : "တင်ထားသည်"}</p>
-                        </div>
-                        <div>
-                          <p style={{ color: gold, fontSize: "18px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}>{agent.totalSold}</p>
-                          <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Total Sold" : "ရောင်းပြီး"}</p>
-                        </div>
-                        <div>
-                          <p style={{ color: "#2d7a3a", fontSize: "14px", fontWeight: 700, margin: "0 0 2px", fontFamily: ff }}> {agent.responseTime}</p>
-                          <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Response time" : "တုံ့ပြန်ချိန်"}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Contact panel */}
-                    <div style={{ flexShrink: 0, width: "220px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: "0 0 4px", letterSpacing: "1px", fontFamily: ff }}> {agent.township}, {lang === "en" ? REGIONS[agent.region]?.en : REGIONS[agent.region]?.my}</p>
-
+                      {/* CTA buttons */}
                       {selectedAgent?.id !== agent.id ? (
-                        <button onClick={() => { setSelectedAgent(agent); setAgentContactName(""); setAgentContactPhone(""); setAgentContactSubmitted(false); }}
-                          style={{ background: navy, color: gold, border: `2px solid ${gold}`, padding: "12px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff, fontWeight: 600 }}>
-                           {lang === "en" ? "Contact Agent" : "အေးဂျင့်ထံ ဆက်သွယ်ရန်"}
-                        </button>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                          <button onClick={() => { setSelectedAgent(agent); setAgentContactName(""); setAgentContactPhone(""); setAgentContactSubmitted(false); }}
+                            style={{ background: navy, color: gold, border: `2px solid ${gold}`, padding: "11px 8px", borderRadius: "8px", fontSize: "12px", cursor: "pointer", fontFamily: ff, fontWeight: 700 }}>
+                            {lang === "en" ? "Message" : "မက်ဆေ့"}
+                          </button>
+                          <button onClick={() => setMainTab("properties")}
+                            style={{ background: "transparent", color: navy, border: "1px solid #ddd5c0", padding: "11px 8px", borderRadius: "8px", fontSize: "12px", cursor: "pointer", fontFamily: ff }}>
+                            {lang === "en" ? `${agent.activeListings} Listings` : `လစ်ဆင်း ${agent.activeListings}`}
+                          </button>
+                        </div>
                       ) : !agentContactSubmitted ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <input value={agentContactName} onChange={e => setAgentContactName(e.target.value)}
                             placeholder={lang === "en" ? "Your name" : "နာမည်"}
-                            style={{ padding: "10px 12px", borderRadius: "4px", border: "1px solid #ddd5c0", fontSize: "13px", fontFamily: ff }} />
+                            style={{ padding: "10px 12px", borderRadius: "6px", border: "1px solid #ddd5c0", fontSize: "13px", fontFamily: ff }} />
                           <input value={agentContactPhone} onChange={e => setAgentContactPhone(e.target.value)}
                             placeholder={lang === "en" ? "Your phone" : "ဖုန်းနံပါတ်"}
-                            style={{ padding: "10px 12px", borderRadius: "4px", border: "1px solid #ddd5c0", fontSize: "13px", fontFamily: ff }} />
+                            style={{ padding: "10px 12px", borderRadius: "6px", border: "1px solid #ddd5c0", fontSize: "13px", fontFamily: ff }} />
                           <button onClick={() => { if (agentContactName && agentContactPhone) setAgentContactSubmitted(true); }}
-                            style={{ background: gold, color: "#fff", border: "none", padding: "10px", borderRadius: "4px", fontSize: "13px", cursor: "pointer", fontFamily: ff, fontWeight: 600 }}>
-                            {lang === "en" ? "Get Number →" : "ဖုန်းနံပါတ် ရယူရန် →"}
+                            style={{ background: gold, color: "#fff", border: "none", padding: "11px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff, fontWeight: 700 }}>
+                            {lang === "en" ? "Get Contact →" : "ဆက်သွယ်ရေး ရယူရန် →"}
+                          </button>
+                          <button onClick={() => setSelectedAgent(null)}
+                            style={{ background: "none", border: "none", color: "#7a6a5a", fontSize: "12px", cursor: "pointer", fontFamily: ff }}>
+                            {lang === "en" ? "Cancel" : "မလုပ်တော့ပါ"}
                           </button>
                         </div>
                       ) : (
-                        <div style={{ background: navy, borderRadius: "6px", padding: "14px", textAlign: "center" }}>
-                          <p style={{ color: gold, fontSize: "10px", margin: "0 0 4px", letterSpacing: "1px", fontFamily: ff }}>PHONE</p>
-                          <p style={{ color: "#fff", fontSize: "18px", fontWeight: 700, margin: "0 0 8px", fontFamily: ff }}>{agent.phone}</p>
-                          <a href={`tel:${agent.phone}`}
-                            style={{ display: "block", background: gold, color: "#fff", padding: "8px", borderRadius: "4px", textDecoration: "none", fontSize: "13px", fontFamily: ff, fontWeight: 600 }}>
-                             {lang === "en" ? "Call Now" : "ခေါ်ဆိုရန်"}
-                          </a>
+                        <div style={{ background: navy, borderRadius: "10px", padding: "16px", textAlign: "center" }}>
+                          <p style={{ color: gold, fontSize: "9px", margin: "0 0 4px", letterSpacing: "2px", fontFamily: ff }}>DIRECT LINE</p>
+                          <p style={{ color: "#fff", fontSize: "20px", fontWeight: 700, margin: "0 0 12px", fontFamily: ff }}>{agent.phone}</p>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                            <a href={`tel:${agent.phone}`}
+                              style={{ background: gold, color: "#fff", padding: "10px", borderRadius: "6px", textDecoration: "none", fontSize: "12px", fontFamily: ff, fontWeight: 700, textAlign: "center" }}>
+                              {lang === "en" ? "Call" : "ဖုန်းဆက်"}
+                            </a>
+                            <a href={`viber://chat?number=${agent.phone.replace(/\D/g,'').replace(/^09/, '+959')}`}
+                              style={{ background: "#7360f2", color: "#fff", padding: "10px", borderRadius: "6px", textDecoration: "none", fontSize: "12px", fontFamily: ff, fontWeight: 700, textAlign: "center" }}>
+                              Viber
+                            </a>
+                          </div>
                         </div>
                       )}
-
-                      <button onClick={() => { setMainTab("properties"); }}
-                        style={{ background: "transparent", color: navy, border: "1px solid #ddd5c0", padding: "10px", borderRadius: "6px", fontSize: "12px", cursor: "pointer", fontFamily: ff }}>
-                        {lang === "en" ? `View ${agent.activeListings} listings` : `လစ်ဆင်း ${agent.activeListings} ခု ကြည့်ရန်`}
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+            </div>
+
+            {/* Empty state */}
+            {AGENTS.filter(a => {
+              const name = lang === "en" ? a.name : a.nameMy;
+              return (!agentSearch || name.toLowerCase().includes(agentSearch.toLowerCase())) && (agentRegion === "all" || a.region === agentRegion) && (!verifiedOnly || a.verified);
+            }).length === 0 && (
+              <div style={{ textAlign: "center", padding: "80px 24px" }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ margin: "0 auto 16px", display: "block" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <p style={{ color: navy, fontSize: "18px", fontWeight: 600, margin: "0 0 8px", fontFamily: ff }}>{lang === "en" ? "No agents found" : "အေးဂျင့် မတွေ့ပါ"}</p>
+                <p style={{ color: "#7a6a5a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? "Try a different search or region" : "ရှာဖွေမှု သို့မဟုတ် ဒေသ ပြောင်းကြည့်ပါ"}</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1550,12 +1712,8 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
                   {/* Save + Share buttons */}
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button onClick={() => toggleSave(selected.id)}
-                      style={{ flex: 1, padding: "10px", border: "1px solid #ddd5c0", borderRadius: "4px", background: savedIds.includes(selected.id) ? "#fff0f0" : "#fff", cursor: "pointer", fontSize: "13px", fontFamily: ff, color: navy, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                      {savedIds.includes(selected.id) ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#bd9468" stroke="#bd9468" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                      ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bd9468" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                      )} {t.save}
+                      style={{ flex: 1, padding: "10px", border: "1px solid #ddd5c0", borderRadius: "4px", background: savedIds.includes(selected.id) ? "#fff0f0" : "#fff", cursor: "pointer", fontSize: "13px", fontFamily: ff, color: navy }}>
+                      {savedIds.includes(selected.id) ? "♥" : "♡"} {t.save}
                     </button>
                     <button style={{ flex: 1, padding: "10px", border: "1px solid #ddd5c0", borderRadius: "4px", background: "#fff", cursor: "pointer", fontSize: "13px", fontFamily: ff, color: navy }}>
                        {t.share}
