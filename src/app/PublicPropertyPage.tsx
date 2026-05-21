@@ -1064,60 +1064,76 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
 
 
       {mainTab === "properties" && <>
-      {/* ── HERO — cinematic gold particles background ── */}
-      <div style={{ background: "radial-gradient(ellipse at top, #1a2e45 0%, #0a1520 100%)", padding: "40px 28px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-
-        {/* Canvas for gold particles */}
-        <canvas id="yumeParticles" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} />
-        <style>{`
-          @keyframes yumeParticleInit {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          #yumeParticles { animation: yumeParticleInit 1s ease forwards; }
-        `}</style>
-        <script dangerouslySetInnerHTML={{ __html: `
-          (function() {
-            function initParticles() {
-              var c = document.getElementById('yumeParticles');
-              if (!c) { setTimeout(initParticles, 100); return; }
-              var ctx = c.getContext('2d');
-              function resize() { c.width = c.offsetWidth; c.height = c.offsetHeight; }
-              resize();
-              window.addEventListener('resize', resize);
-              var particles = Array.from({length: 80}, function() {
-                return {
-                  x: Math.random() * c.width,
-                  y: Math.random() * c.height,
-                  r: Math.random() * 1.8 + 0.3,
-                  a: Math.random() * Math.PI * 2,
-                  speed: Math.random() * 0.012 + 0.004
-                };
-              });
-              function draw() {
-                ctx.clearRect(0, 0, c.width, c.height);
-                particles.forEach(function(p) {
-                  p.a += p.speed;
-                  var alpha = Math.sin(p.a) * 0.5 + 0.5;
-                  ctx.beginPath();
-                  ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                  ctx.fillStyle = 'rgba(189,148,104,' + (alpha * 0.85) + ')';
-                  ctx.fill();
-                });
-                requestAnimationFrame(draw);
-              }
-              draw();
-            }
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', initParticles);
-            } else {
-              initParticles();
-            }
-          })();
-        ` }} />
-
-        {/* Gold glow at top */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, transparent, #bd9468, transparent)", pointerEvents: "none" }} />
+      {/* ── HERO — cinematic CSS particle background ── */}
+      <style>{`
+        .yume-hero {
+          background: radial-gradient(ellipse at top, #1a2e45 0%, #0a1520 100%);
+          position: relative; overflow: hidden;
+        }
+        .yume-hero::before {
+          content: '';
+          position: absolute; inset: 0;
+          background-image:
+            radial-gradient(1px 1px at 10% 20%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(1px 1px at 25% 60%, rgba(189,148,104,0.7) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 40% 15%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(1px 1px at 55% 75%, rgba(189,148,104,0.6) 0%, transparent 100%),
+            radial-gradient(2px 2px at 70% 35%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(1px 1px at 85% 80%, rgba(189,148,104,0.7) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 15% 85%, rgba(189,148,104,0.5) 0%, transparent 100%),
+            radial-gradient(1px 1px at 32% 40%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(2px 2px at 48% 90%, rgba(189,148,104,0.6) 0%, transparent 100%),
+            radial-gradient(1px 1px at 63% 10%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 78% 55%, rgba(189,148,104,0.7) 0%, transparent 100%),
+            radial-gradient(1px 1px at 92% 25%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(1px 1px at 5% 50%, rgba(189,148,104,0.6) 0%, transparent 100%),
+            radial-gradient(2px 2px at 20% 30%, rgba(189,148,104,0.5) 0%, transparent 100%),
+            radial-gradient(1px 1px at 37% 70%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 52% 45%, rgba(189,148,104,0.7) 0%, transparent 100%),
+            radial-gradient(1px 1px at 67% 65%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(2px 2px at 82% 15%, rgba(189,148,104,0.6) 0%, transparent 100%),
+            radial-gradient(1px 1px at 95% 70%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(1px 1px at 8% 90%, rgba(189,148,104,0.5) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 44% 5%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(1px 1px at 73% 92%, rgba(189,148,104,0.7) 0%, transparent 100%),
+            radial-gradient(2px 2px at 88% 45%, rgba(189,148,104,0.6) 0%, transparent 100%),
+            radial-gradient(1px 1px at 3% 35%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(1px 1px at 58% 55%, rgba(189,148,104,0.5) 0%, transparent 100%);
+          animation: yumeTwinkle 4s ease-in-out infinite alternate;
+          pointer-events: none;
+        }
+        .yume-hero::after {
+          content: '';
+          position: absolute; inset: 0;
+          background-image:
+            radial-gradient(1px 1px at 18% 12%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 33% 88%, rgba(189,148,104,0.6) 0%, transparent 100%),
+            radial-gradient(1px 1px at 47% 32%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(2px 2px at 61% 78%, rgba(189,148,104,0.7) 0%, transparent 100%),
+            radial-gradient(1px 1px at 76% 22%, rgba(189,148,104,0.5) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 90% 58%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(1px 1px at 12% 68%, rgba(189,148,104,0.6) 0%, transparent 100%),
+            radial-gradient(2px 2px at 27% 48%, rgba(189,148,104,0.9) 0%, transparent 100%),
+            radial-gradient(1px 1px at 41% 82%, rgba(189,148,104,0.7) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 56% 18%, rgba(189,148,104,0.5) 0%, transparent 100%),
+            radial-gradient(1px 1px at 69% 42%, rgba(189,148,104,0.8) 0%, transparent 100%),
+            radial-gradient(2px 2px at 84% 95%, rgba(189,148,104,0.6) 0%, transparent 100%);
+          animation: yumeTwinkle 4s ease-in-out infinite alternate-reverse;
+          pointer-events: none;
+        }
+        @keyframes yumeTwinkle {
+          0% { opacity: 0.3; }
+          100% { opacity: 1; }
+        }
+        .yume-hero-glow {
+          position: absolute; top: 0; left: 0; right: 0;
+          height: "2px";
+          background: linear-gradient(90deg, transparent, #bd9468, transparent);
+          pointer-events: none;
+        }
+      `}</style>
+      <div className="yume-hero" style={{ padding: "40px 28px", textAlign: "center" }}>
+        <div className="yume-hero-glow" style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, transparent, #bd9468, transparent)" }} />
         <h1 style={{ color: white, fontSize: "clamp(24px, 4vw, 40px)", fontWeight: 700, margin: "0 0 8px", lineHeight: 1.2, fontFamily: ff, letterSpacing: "-0.5px", position: "relative" }}>{t.hero1}</h1>
         <h2 style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", fontWeight: 400, margin: "0 0 28px", fontFamily: ff, position: "relative" }}>{t.hero2}</h2>
 
