@@ -1065,22 +1065,7 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
 
       {mainTab === "properties" && <>
       {/* ── HERO — cinematic CSS particle background ── */}
-      <style>{`
-        @keyframes yumeTwinkleA {
-          0%, 100% { opacity: 0.15; }
-          50% { opacity: 1; }
-        }
-        @keyframes yumeTwinkleB {
-          0%, 100% { opacity: 0.8; }
-          50% { opacity: 0.1; }
-        }
-        @keyframes yumeTwinkleC {
-          0%, 100% { opacity: 0.5; }
-          33% { opacity: 1; }
-          66% { opacity: 0.2; }
-        }
-        .yp { position: absolute; border-radius: 50%; pointer-events: none; background: #bd9468; }
-      `}</style>
+
       <div style={{ background: "radial-gradient(ellipse at top, #1a2e45 0%, #0a1520 100%)", padding: "40px 28px", textAlign: "center", position: "relative", overflow: "hidden" }}>
 
         {/* Gold line top */}

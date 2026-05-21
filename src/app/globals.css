@@ -582,39 +582,23 @@ textarea:focus {
   }
 }
 
-/* ── Yume Estate Responsive Grids ── */
-.yume-card-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 16px !important;
-  width: 100% !important;
-  overflow-x: hidden !important;
+/* ── Yume Hero Particles ── */
+@keyframes yumeTwinkleA {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 1; }
 }
-
-.yume-loc-grid {
-  display: grid !important;
-  grid-template-columns: repeat(6, 1fr) !important;
-  gap: 12px !important;
-  width: 100% !important;
-  overflow-x: hidden !important;
+@keyframes yumeTwinkleB {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.1; }
 }
-
-@media screen and (max-width: 768px) {
-  .yume-card-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-  }
-
-  .yume-loc-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
-  }
+@keyframes yumeTwinkleC {
+  0%, 100% { opacity: 0.5; }
+  33% { opacity: 1; }
+  66% { opacity: 0.2; }
 }
-
-/* Prevent horizontal overflow globally on mobile */
-@media screen and (max-width: 768px) {
-  body, html {
-    overflow-x: hidden !important;
-    max-width: 100vw !important;
-  }
+.yp {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: #bd9468;
 }
