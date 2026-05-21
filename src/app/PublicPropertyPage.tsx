@@ -528,199 +528,601 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
   return (
     <div style={{ minHeight: "100vh", background: "#eee8dc", fontFamily: ff }}>
 
-      {/* ── HAMBURGER MENU OVERLAY ── */}
+      {/* ── MEGA HAMBURGER MENU OVERLAY ── */}
       {menuOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex" }}>
-          <div onClick={() => { setMenuOpen(false); setMenuSection(null); }} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)" }} />
-          <div style={{ position: "relative", width: "min(100%, 400px)", background: "#fff", height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", boxShadow: "4px 0 40px rgba(0,0,0,0.25)", marginLeft: "auto" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 2000, display: "flex" }}>
+          {/* Backdrop */}
+          <div onClick={() => { setMenuOpen(false); setMenuSection(null); }}
+            style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(2px)" }} />
 
-            {/* Drawer header */}
-            <div style={{ background: navy, padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `3px solid ${gold}`, flexShrink: 0 }}>
-              <img src="/logo.png" alt="Yume Estate" style={{ height: "38px", filter: "brightness(10)" }} />
-              <button onClick={() => { setMenuOpen(false); setMenuSection(null); }} aria-label="Close"
-                style={{ background: "rgba(255,255,255,0.1)", border: `1px solid rgba(189,148,104,0.4)`, borderRadius: "6px", cursor: "pointer", color: "#fff", padding: "8px", display: "flex" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
+          {/* Drawer — slides in from right */}
+          <div style={{
+            position: "relative", width: "min(100%, 440px)", height: "100%",
+            background: "#fff", overflowY: "auto", display: "flex", flexDirection: "column",
+            boxShadow: "-4px 0 40px rgba(0,0,0,0.25)", marginLeft: "auto",
+          }}>
 
-            {/* Language */}
-            <div style={{ padding: "14px 20px", borderBottom: "1px solid #f0ece4", display: "flex", gap: "8px", flexShrink: 0 }}>
-              {(["en", "my"] as const).map(l => (
-                <button key={l} onClick={() => setLang(l)}
-                  style={{ flex: 1, padding: "9px", borderRadius: "6px", border: `1px solid ${gold}`, background: lang === l ? navy : "transparent", color: lang === l ? gold : "#7a6a5a", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: ff }}>
-                  {l === "en" ? "EN · English" : "MY · မြန်မာ"}
-                </button>
-              ))}
-            </div>
-
-            {/* Nav items */}
-            <div style={{ flex: 1, overflowY: "auto" }}>
-              {[
-                { key: "buy",        en: "Buy",               my: "ဝယ်ရန်",           sub: true  },
-                { key: "rent",       en: "Rent",              my: "ငှားရမ်းရန်",      sub: true  },
-                { key: "projects",   en: "New Projects",      my: "စီမံကိန်းသစ်",     sub: false },
-                { key: "commercial", en: "Commercials",       my: "စီးပွားရေး",       sub: true  },
-                { key: "guides",     en: "Guides",            my: "လမ်းညွှန်",       sub: false },
-                { key: "advertise",  en: "Advertise with us", my: "ကြော်ငြာပါ",      sub: false },
-              ].map(item => (
-                <div key={item.key}>
-                  <button onClick={() => {
-                    if (item.key === "buy")        { setListingFilter("sale"); setMenuSection(menuSection === "buy" ? null : "buy"); }
-                    else if (item.key === "rent")  { setListingFilter("rent"); setMenuSection(menuSection === "rent" ? null : "rent"); }
-                    else if (item.key === "commercial") { setMenuSection(menuSection === "commercial" ? null : "commercial"); }
-                    else if (item.key === "projects") { setMainTab("projects"); setMenuOpen(false); setMenuSection(null); }
-                    else { setMenuOpen(false); setMenuSection(null); }
-                  }}
-                    style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", background: menuSection === item.key ? "#faf7f2" : "transparent", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer" }}>
-                    <span style={{ color: navy, fontSize: "16px", fontWeight: menuSection === item.key ? 700 : 500, fontFamily: ff }}>{lang === "en" ? item.en : item.my}</span>
-                    {item.sub && (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ transform: menuSection === item.key ? "rotate(90deg)" : "none", transition: "transform 0.2s" }}><polyline points="9 18 15 12 9 6"/></svg>
-                    )}
-                  </button>
-
-                  {/* BUY submenu */}
-                  {item.key === "buy" && menuSection === "buy" && (
-                    <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
-                      <button onClick={() => { setMainTab("properties"); setListingFilter("sale"); setRegionFilter("all"); setMenuOpen(false); setMenuSection(null); }}
-                        style={{ width: "100%", padding: "14px 20px 14px 40px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
-                        <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>{lang === "en" ? "→ View all properties for sale" : "→ ရောင်းရန် အိမ်ခြံမြေ အားလုံး ကြည့်ရန်"}</span>
-                      </button>
-                      <div style={{ padding: "12px 20px 12px 40px" }}>
-                        <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 10px", fontFamily: ff }}>LOCATION</p>
-                        {[
-                          { en: "Yangon",     my: "ရန်ကုန်",      r: "yangon"     },
-                          { en: "Mandalay",   my: "မန္တလေး",      r: "mandalay"   },
-                          { en: "Naypyidaw",  my: "နေပြည်တော်",   r: "naypyidaw"  },
-                          { en: "Bago",       my: "ပဲခူး",         r: "bago"       },
-                          { en: "Ayeyarwady", my: "အင်းဝ",         r: "ayeyarwady" },
-                        ].map(loc => (
-                          <button key={loc.r} onClick={() => { setMainTab("properties"); setListingFilter("sale"); setRegionFilter(loc.r); setMenuOpen(false); setMenuSection(null); }}
-                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? loc.en : loc.my}</span>
-                          </button>
-                        ))}
-                        <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "14px 0 10px", fontFamily: ff }}>TYPE</p>
-                        {[
-                          { en: "Condo",     my: "ကွန်ဒို",   t: "condo"     },
-                          { en: "House",     my: "အိမ်",       t: "house"     },
-                          { en: "Land",      my: "မြေ",        t: "land"      },
-                          { en: "Apartment", my: "တိုက်ခန်း", t: "apartment" },
-                        ].map(type => (
-                          <button key={type.t} onClick={() => { setMainTab("properties"); setListingFilter("sale"); setTypeFilter(type.t); setMenuOpen(false); setMenuSection(null); }}
-                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? type.en : type.my}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* RENT submenu */}
-                  {item.key === "rent" && menuSection === "rent" && (
-                    <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
-                      <button onClick={() => { setMainTab("properties"); setListingFilter("rent"); setRegionFilter("all"); setMenuOpen(false); setMenuSection(null); }}
-                        style={{ width: "100%", padding: "14px 20px 14px 40px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
-                        <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>{lang === "en" ? "→ View all properties for rent" : "→ ငှားရမ်းရန် အိမ်ခြံမြေ အားလုံး ကြည့်ရန်"}</span>
-                      </button>
-                      <div style={{ padding: "12px 20px 12px 40px" }}>
-                        <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 10px", fontFamily: ff }}>LOCATION</p>
-                        {[
-                          { en: "Yangon",    my: "ရန်ကုန်",    r: "yangon"    },
-                          { en: "Mandalay",  my: "မန္တလေး",    r: "mandalay"  },
-                          { en: "Naypyidaw", my: "နေပြည်တော်", r: "naypyidaw" },
-                        ].map(loc => (
-                          <button key={loc.r} onClick={() => { setMainTab("properties"); setListingFilter("rent"); setRegionFilter(loc.r); setMenuOpen(false); setMenuSection(null); }}
-                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? loc.en : loc.my}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* COMMERCIAL submenu */}
-                  {item.key === "commercial" && menuSection === "commercial" && (
-                    <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
-                      <button onClick={() => { setMainTab("properties"); setTypeFilter("commercial"); setMenuOpen(false); setMenuSection(null); }}
-                        style={{ width: "100%", padding: "14px 20px 14px 40px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
-                        <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>{lang === "en" ? "→ View all commercial properties" : "→ စီးပွားရေး အိမ်ခြံမြေ အားလုံး"}</span>
-                      </button>
-                      <div style={{ padding: "12px 20px 12px 40px" }}>
-                        {[
-                          { en: "Office Space", my: "ရုံးခန်း"   },
-                          { en: "Shop / Retail", my: "ဆိုင်ခန်း" },
-                          { en: "Warehouse",     my: "ဂိုဒေါင်"  },
-                          { en: "Factory",       my: "စက်ရုံ"    },
-                        ].map(type => (
-                          <button key={type.en} onClick={() => { setMainTab("properties"); setTypeFilter("commercial"); setMenuOpen(false); setMenuSection(null); }}
-                            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "10px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
-                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? type.en : type.my}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+            {/* ── Drawer header ── */}
+            <div style={{ background: navy, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `3px solid ${gold}`, flexShrink: 0 }}>
+              <img src="/logo.png" alt="Yume Estate" style={{ height: "36px", filter: "brightness(10)" }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {/* Language toggle in header */}
+                <div style={{ display: "flex", border: `1px solid rgba(189,148,104,0.4)`, borderRadius: "6px", overflow: "hidden" }}>
+                  {(["en", "my"] as const).map(l => (
+                    <button key={l} onClick={() => setLang(l)}
+                      style={{ padding: "6px 12px", background: lang === l ? gold : "transparent", color: lang === l ? navy : gold, border: "none", cursor: "pointer", fontSize: "12px", fontWeight: 700, fontFamily: ff }}>
+                      {l === "en" ? "EN" : "MY"}
+                    </button>
+                  ))}
                 </div>
-              ))}
+                <button onClick={() => { setMenuOpen(false); setMenuSection(null); }} aria-label="Close menu"
+                  style={{ background: "rgba(255,255,255,0.1)", border: `1px solid rgba(189,148,104,0.3)`, borderRadius: "6px", padding: "8px", cursor: "pointer", color: "#fff", display: "flex" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
             </div>
 
-            {/* Agent login footer */}
-            <div style={{ padding: "18px 20px", borderTop: `2px solid ${gold}`, background: "#faf7f2", flexShrink: 0 }}>
-              <button onClick={() => { onAgentLoginClick?.(); setMenuOpen(false); }}
-                style={{ width: "100%", background: navy, color: gold, border: `2px solid ${gold}`, padding: "14px", borderRadius: "8px", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: ff, letterSpacing: "1px" }}>
-                {lang === "en" ? "AGENT LOGIN" : "အေးဂျင့် ဝင်ရောက်ရန်"}
+            {/* ── Tagline strip ── */}
+            <div style={{ background: "#1a2e45", padding: "8px 20px", textAlign: "center", flexShrink: 0 }}>
+              <p style={{ color: gold, fontSize: "10px", letterSpacing: "3px", margin: 0, fontFamily: ff, fontStyle: "italic" }}>
+                {lang === "en" ? "PREMIUM PROPERTIES · TRUSTED AGENTS · MYANMAR" : "အဆင့်မြင့် အိမ်ခြံမြေ · ယုံကြည်ရသော အေးဂျင့်များ"}
+              </p>
+            </div>
+
+            {/* ── Nav items ── */}
+            <div style={{ flex: 1, overflowY: "auto" }}>
+
+              {/* ── BUY ── */}
+              <div>
+                <button onClick={() => { setListingFilter("sale"); setMenuSection(menuSection === "buy" ? null : "buy"); }}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: menuSection === "buy" ? "#faf7f2" : "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: menuSection === "buy" ? `3px solid ${gold}` : "3px solid transparent" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: menuSection === "buy" ? navy : "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={menuSection === "buy" ? gold : "#7a6a5a"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Buy" : "ဝယ်ရန်"}</p>
+                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Properties for sale across Myanmar" : "မြန်မာနိုင်ငံတွင် ရောင်းရန် အိမ်ခြံမြေများ"}</p>
+                    </div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ transform: menuSection === "buy" ? "rotate(90deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {menuSection === "buy" && (
+                  <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
+                    <button onClick={() => { setMainTab("properties"); setListingFilter("sale"); setRegionFilter("all"); setMenuOpen(false); setMenuSection(null); }}
+                      style={{ width: "100%", padding: "12px 20px 12px 74px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
+                      <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>→ {lang === "en" ? "View all properties for sale" : "ရောင်းရန် အိမ်ခြံမြေ အားလုံး"}</span>
+                    </button>
+                    <div style={{ padding: "14px 20px 14px 74px" }}>
+                      <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 10px", fontFamily: ff }}>
+                        {lang === "en" ? "BY LOCATION" : "တည်နေရာ အလိုက်"}
+                      </p>
+                      {[
+                        { en: "Yangon", my: "ရန်ကုန်", r: "yangon", count: "1,200+" },
+                        { en: "Mandalay", my: "မန္တလေး", r: "mandalay", count: "340+" },
+                        { en: "Naypyidaw", my: "နေပြည်တော်", r: "naypyidaw", count: "180+" },
+                        { en: "Bago", my: "ပဲခူး", r: "bago", count: "95+" },
+                        { en: "Ayeyarwady", my: "အင်းဝ", r: "ayeyarwady", count: "62+" },
+                        { en: "Sagaing", my: "စစ်ကိုင်း", r: "sagaing", count: "48+" },
+                      ].map(loc => (
+                        <button key={loc.r} onClick={() => { setMainTab("properties"); setListingFilter("sale"); setRegionFilter(loc.r); setMenuOpen(false); setMenuSection(null); }}
+                          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "9px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? loc.en : loc.my}</span>
+                          </div>
+                          <span style={{ color: "#aaa", fontSize: "11px", fontFamily: ff }}>{loc.count}</span>
+                        </button>
+                      ))}
+                      <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "14px 0 10px", fontFamily: ff }}>
+                        {lang === "en" ? "BY TYPE" : "အမျိုးအစား အလိုက်"}
+                      </p>
+                      {[
+                        { en: "Condo", my: "ကွန်ဒို", t: "condo", icon: "C" },
+                        { en: "House / Landed", my: "အိမ်", t: "house", icon: "H" },
+                        { en: "Land / Plot", my: "မြေကွက်", t: "land", icon: "L" },
+                        { en: "Apartment", my: "တိုက်ခန်း", t: "apartment", icon: "A" },
+                        { en: "Mini Condo", my: "မီနီကွန်ဒို", t: "minicondo", icon: "M" },
+                        { en: "Villa", my: "ဗီလာ", t: "villa", icon: "V" },
+                        { en: "Penthouse", my: "ပင်ထောင်", t: "penthouse", icon: "P" },
+                      ].map(type => (
+                        <button key={type.t} onClick={() => { setMainTab("properties"); setListingFilter("sale"); setTypeFilter(type.t); setMenuOpen(false); setMenuSection(null); }}
+                          style={{ display: "flex", alignItems: "center", gap: "10px", width: "100%", padding: "9px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                          <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? type.en : type.my}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── RENT ── */}
+              <div>
+                <button onClick={() => { setListingFilter("rent"); setMenuSection(menuSection === "rent" ? null : "rent"); }}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: menuSection === "rent" ? "#faf7f2" : "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: menuSection === "rent" ? `3px solid ${gold}` : "3px solid transparent" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: menuSection === "rent" ? navy : "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={menuSection === "rent" ? gold : "#7a6a5a"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Rent" : "ငှားရမ်းရန်"}</p>
+                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Short & long-term rentals" : "အချိန်တိုနှင့် ရှည် ငှားရမ်းမှုများ"}</p>
+                    </div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ transform: menuSection === "rent" ? "rotate(90deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {menuSection === "rent" && (
+                  <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4" }}>
+                    <button onClick={() => { setMainTab("properties"); setListingFilter("rent"); setRegionFilter("all"); setMenuOpen(false); setMenuSection(null); }}
+                      style={{ width: "100%", padding: "12px 20px 12px 74px", background: navy, border: "none", borderBottom: `2px solid ${gold}`, cursor: "pointer", textAlign: "left" }}>
+                      <span style={{ color: gold, fontSize: "13px", fontFamily: ff, fontWeight: 700 }}>→ {lang === "en" ? "View all properties for rent" : "ငှားရမ်းရန် အိမ်ခြံမြေ အားလုံး"}</span>
+                    </button>
+                    <div style={{ padding: "14px 20px 14px 74px" }}>
+                      <p style={{ color: gold, fontSize: "10px", letterSpacing: "2px", margin: "0 0 10px", fontFamily: ff }}>{lang === "en" ? "POPULAR SEARCHES" : "လူကြိုက်များသော ရှာဖွေမှုများ"}</p>
+                      {[
+                        { en: "Apartments in Yankin", my: "ရန်ကင်း တိုက်ခန်းများ", r: "yangon" },
+                        { en: "Condos in Bahan", my: "ဗဟန်း ကွန်ဒိုများ", r: "yangon" },
+                        { en: "Houses in Hlaing", my: "လှိုင် အိမ်များ", r: "yangon" },
+                        { en: "Offices in Sanchaung", my: "စမ်းချောင်း ရုံးခန်းများ", r: "yangon" },
+                        { en: "Mandalay Apartments", my: "မန္တလေး တိုက်ခန်းများ", r: "mandalay" },
+                      ].map((s, i) => (
+                        <button key={i} onClick={() => { setMainTab("properties"); setListingFilter("rent"); setRegionFilter(s.r); setMenuOpen(false); setMenuSection(null); }}
+                          style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "9px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                          <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? s.en : s.my}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── NEW PROJECTS ── */}
+              <button onClick={() => { setMainTab("projects"); setMenuOpen(false); setMenuSection(null); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: "3px solid transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "New Projects" : "စီမံကိန်းသစ်များ"}</p>
+                    <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Latest launches from developers" : "ဒီဗယ်လပ်မာများမှ နောက်ဆုံး ထုတ်ပြန်မှုများ"}</p>
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
+
+              {/* ── COMMERCIALS ── */}
+              <div>
+                <button onClick={() => setMenuSection(menuSection === "commercial" ? null : "commercial")}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: menuSection === "commercial" ? "#faf7f2" : "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: menuSection === "commercial" ? `3px solid ${gold}` : "3px solid transparent" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: menuSection === "commercial" ? navy : "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={menuSection === "commercial" ? gold : "#7a6a5a"} strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Commercials" : "စီးပွားရေး"}</p>
+                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Office, shop, factory, warehouse" : "ရုံးခန်း၊ ဆိုင်၊ စက်ရုံ၊ ဂိုဒေါင်"}</p>
+                    </div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ transform: menuSection === "commercial" ? "rotate(90deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {menuSection === "commercial" && (
+                  <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4", padding: "10px 20px 14px 74px" }}>
+                    {[
+                      { en: "Office Space", my: "ရုံးခန်း", t: "commercial" },
+                      { en: "Shop / Retail", my: "ဆိုင်ခန်း", t: "shop" },
+                      { en: "Industrial / Factory", my: "စက်ရုံ / စက်မှုဇုန်", t: "industrial" },
+                      { en: "Warehouse / Storage", my: "ဂိုဒေါင်", t: "warehouse" },
+                      { en: "Hotel / Restaurant", my: "ဟိုတယ် / စားသောက်ဆိုင်", t: "hotel" },
+                      { en: "Hostels / Boarding", my: "ဧည့်ခန်း / အိပ်ခန်းငှားရမ်း", t: "hostel" },
+                    ].map(type => (
+                      <button key={type.t} onClick={() => { setMainTab("properties"); setTypeFilter(type.t); setMenuOpen(false); setMenuSection(null); }}
+                        style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "9px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? type.en : type.my}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── MAP SEARCH ── */}
+              <button onClick={() => { setMainTab("map" as any); setMenuOpen(false); setMenuSection(null); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: "3px solid transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="1.8" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Map Search" : "မြေပုံ ရှာဖွေရန်"}</p>
+                    <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Find properties by location on map" : "မြေပုံပေါ်တွင် အိမ်ခြံမြေ ရှာဖွေပါ"}</p>
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+              {/* ── WANTED LISTINGS ── */}
+              <button onClick={() => { setMenuOpen(false); setMenuSection(null); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: "3px solid transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>
+                      {lang === "en" ? "Wanted Listings" : "ရှာဖွေနေသော အိမ်ခြံမြေ"}
+                      <span style={{ background: "#2d7a3a", color: "#fff", fontSize: "9px", padding: "2px 6px", borderRadius: "4px", marginLeft: "8px", fontWeight: 700 }}>NEW</span>
+                    </p>
+                    <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Post what you're looking for — agents find you" : "ရှာနေသည်ကို တင်ပါ — အေးဂျင့်က ရှာပေးမည်"}</p>
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+              {/* ── PROPERTY GUIDES ── */}
+              <div>
+                <button onClick={() => setMenuSection(menuSection === "guides" ? null : "guides")}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: menuSection === "guides" ? "#faf7f2" : "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: menuSection === "guides" ? `3px solid ${gold}` : "3px solid transparent" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: menuSection === "guides" ? navy : "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={menuSection === "guides" ? gold : "#7a6a5a"} strokeWidth="1.8" strokeLinecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Guides & Knowledge" : "လမ်းညွှန် & အသိပညာ"}</p>
+                      <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Buying tips, legal guides, market news" : "ဝယ်ယူမှု အကြံပြု၊ ဥပဒေ လမ်းညွှန်"}</p>
+                    </div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ transform: menuSection === "guides" ? "rotate(90deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {menuSection === "guides" && (
+                  <div style={{ background: "#faf7f2", borderBottom: "1px solid #e8dfc4", padding: "10px 20px 14px 74px" }}>
+                    {[
+                      { en: "Buyer's Guide", my: "ဝယ်သူ လမ်းညွှန်" },
+                      { en: "Land Title Types Explained", my: "မြေပိုင်ဆိုင်မှု အမျိုးအစားများ" },
+                      { en: "Mortgage & Home Loans", my: "အချေးငွေ & နေအိမ်ချေးငွေ" },
+                      { en: "Property Investment Tips", my: "အိမ်ခြံမြေ ရင်းနှီးမြှုပ်နှံမှု" },
+                      { en: "Myanmar Property Law", my: "မြန်မာ အိမ်ခြံမြေ ဥပဒေ" },
+                      { en: "Property News", my: "အိမ်ခြံမြေ သတင်းများ" },
+                      { en: "Q&A Forum", my: "မေးဖြေ ဖိုရမ်" },
+                    ].map((g, i) => (
+                      <button key={i} onClick={() => { setMenuOpen(false); setMenuSection(null); }}
+                        style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "9px 0", background: "none", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", textAlign: "left" }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={gold} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        <span style={{ color: "#5a4a3a", fontSize: "14px", fontFamily: ff }}>{lang === "en" ? g.en : g.my}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── MORTGAGE CALCULATOR ── */}
+              <button onClick={() => { setMenuOpen(false); setMenuSection(null); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: "3px solid transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="1.8" strokeLinecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Mortgage Calculator" : "အချေးငွေ တွက်ချက်ကိရိယာ"}</p>
+                    <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Calculate monthly payments in MMK" : "လစဉ်ပြန်ဆပ်ငွေ တွက်ချက်ပါ"}</p>
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+              {/* ── FIND AGENTS ── */}
+              <button onClick={() => { setMainTab("agents"); setMenuOpen(false); setMenuSection(null); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: "3px solid transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Find Agents & Agencies" : "အေးဂျင့် & အေဂျင်စီ ရှာရန်"}</p>
+                    <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Verified real estate professionals" : "အတည်ပြုထားသော ကျွမ်းကျင်သူများ"}</p>
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+              {/* ── PROPERTY EXPO ── */}
+              <button onClick={() => { setMenuOpen(false); setMenuSection(null); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: "3px solid transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>
+                      {lang === "en" ? "Property Expo & Events" : "အိမ်ခြံမြေ ပြပွဲများ"}
+                      <span style={{ background: gold, color: "#fff", fontSize: "9px", padding: "2px 6px", borderRadius: "4px", marginLeft: "8px", fontWeight: 700 }}>SOON</span>
+                    </p>
+                    <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "Upcoming property exhibitions" : "လာမည့် အိမ်ခြံမြေ ပြပွဲများ"}</p>
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+              {/* ── ADVERTISE ── */}
+              <button onClick={() => { setMenuOpen(false); setMenuSection(null); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#fff", border: "none", borderBottom: "1px solid #f0ece4", cursor: "pointer", borderLeft: "3px solid transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a6a5a" strokeWidth="1.8" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ color: navy, fontSize: "15px", fontWeight: 600, margin: 0, fontFamily: ff }}>{lang === "en" ? "Advertise with Yume" : "Yume နှင့် ကြော်ငြာပါ"}</p>
+                    <p style={{ color: "#7a6a5a", fontSize: "11px", margin: 0, fontFamily: ff }}>{lang === "en" ? "List your project or development" : "သင်၏ ပရောဂျက် ကြော်ငြာပါ"}</p>
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+            </div>
+
+            {/* ── Footer — Agent portal ── */}
+            <div style={{ padding: "16px 20px", borderTop: `2px solid ${gold}`, background: "#faf7f2", flexShrink: 0 }}>
+              <button onClick={() => { onAgentLoginClick?.(); setMenuOpen(false); }}
+                style={{ width: "100%", background: navy, color: gold, border: `2px solid ${gold}`, padding: "14px", borderRadius: "8px", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: ff, letterSpacing: "1px", marginBottom: "10px" }}>
+                {lang === "en" ? "AGENT LOGIN / SIGN UP" : "အေးဂျင့် ဝင်ရောက် / မှတ်ပုံတင်ရန်"}
+              </button>
+              <p style={{ color: "#aaa", fontSize: "10px", textAlign: "center", margin: 0, fontFamily: ff }}>
+                {lang === "en" ? "© 2025 Yume Estate · Premium Properties · Myanmar" : "© ၂၀၂၅ Yume Estate · မြန်မာ"}
+              </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── HEADER ── */}
-      <header style={{ background: "#fbf3da", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `2px solid ${gold}`, position: "sticky", top: 0, zIndex: 100, height: "64px" }}>
-        <img src="/logo.png" alt="Yume Estate" style={{ height: "44px", width: "auto" }} />
-        <button onClick={() => setMenuOpen(true)} aria-label="Open menu"
-          style={{ background: navy, border: `1px solid ${gold}`, borderRadius: "8px", padding: "10px 13px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "5px", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ width: "20px", height: "2px", background: gold, borderRadius: "2px" }} />
-          <div style={{ width: "20px", height: "2px", background: gold, borderRadius: "2px" }} />
-          <div style={{ width: "20px", height: "2px", background: gold, borderRadius: "2px" }} />
+      {/* ── HEADER — responsive: full nav desktop, hamburger mobile ── */}
+      <style>{`
+        .yn-nav { display: flex; }
+        .yn-ham { display: none; }
+        @media (max-width: 900px) {
+          .yn-nav { display: none !important; }
+          .yn-ham { display: flex !important; }
+        }
+        .yn-item { position: relative; height: 80px; display: flex; align-items: center; }
+        .yn-btn {
+          height: 100%; padding: 0 14px;
+          background: none; border: none; cursor: pointer;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          font-size: 14px; font-weight: 700; color: #222;
+          display: flex; align-items: center; gap: 4px;
+          letter-spacing: 0.2px; white-space: nowrap; flex-shrink: 0;
+        }
+        .yn-btn:hover { color: #bd9468; }
+        .yn-arrow { font-size: 9px; color: #111d2b; }
+        .yn-drop {
+          display: none;
+          position: absolute; top: 100%; left: 0;
+          background: #fff;
+          border-radius: 6px;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+          min-width: 190px;
+          padding: 10px 0;
+          z-index: 999;
+        }
+        .yn-item:hover .yn-drop { display: block; }
+        .yn-dd-btn {
+          display: block; width: 100%;
+          padding: 9px 22px;
+          background: none; border: none; cursor: pointer;
+          text-align: left; font-family: Georgia, serif;
+          font-size: 13px; color: #333;
+        }
+        .yn-dd-btn:hover { color: #bd9468; }
+        .yn-dd-top {
+          display: block; width: 100%;
+          padding: 4px 22px 10px;
+          background: none; border: none; cursor: pointer;
+          text-align: left; font-family: Georgia, serif;
+          font-size: 13px; color: #111d2b; font-weight: 700;
+        }
+        .yn-dd-top:hover { color: #bd9468; }
+        .yn-cat {
+          display: block;
+          font-size: 10px; color: #bd9468; font-weight: 700;
+          letter-spacing: 1.5px; padding: 10px 22px 4px;
+        }
+        .yn-cat:first-child { padding-top: 4px; }
+      `}</style>
+
+      <header style={{ background: "#fbf3da", padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `2px solid ${gold}`, height: "80px", position: "sticky", top: 0, zIndex: 200 }}>
+
+        {/* Logo */}
+        <img src="/logo.png" alt="Yume Estate" style={{ height: "76px", width: "auto", maxWidth: "220px", flexShrink: 0, objectFit: "contain" }} />
+
+        {/* ── Desktop nav ── */}
+        <nav className="yn-nav" style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "80px", display: "flex" }}>
+
+          {/* Buy */}
+          <div className="yn-item">
+            <button className="yn-btn" onClick={() => { setListingFilter("sale"); setMainTab("properties"); }}>
+              {lang === "en" ? "Buy" : "ဝယ်ရန်"} <span className="yn-arrow">▾</span>
+            </button>
+            <div className="yn-drop">
+              <button className="yn-dd-top" onClick={() => { setListingFilter("sale"); setRegionFilter("all"); setMainTab("properties"); }}>
+                {lang === "en" ? "View all for sale →" : "ရောင်းရန် အားလုံး →"}
+              </button>
+              <span className="yn-cat">{lang === "en" ? "LOCATION" : "တည်နေရာ"}</span>
+              {[{en:"Yangon",my:"ရန်ကုန်",r:"yangon"},{en:"Mandalay",my:"မန္တလေး",r:"mandalay"},{en:"Naypyidaw",my:"နေပြည်တော်",r:"naypyidaw"},{en:"Bago",my:"ပဲခူး",r:"bago"}].map(l=>(
+                <button key={l.r} className="yn-dd-btn" onClick={() => { setListingFilter("sale"); setRegionFilter(l.r); setMainTab("properties"); }}>
+                  {lang === "en" ? l.en : l.my}
+                </button>
+              ))}
+              <span className="yn-cat">{lang === "en" ? "TYPE" : "အမျိုးအစား"}</span>
+              {[{en:"Condo",my:"ကွန်ဒို",t:"condo"},{en:"House",my:"အိမ်",t:"house"},{en:"Land",my:"မြေ",t:"land"},{en:"Apartment",my:"တိုက်ခန်း",t:"apartment"}].map(t=>(
+                <button key={t.t} className="yn-dd-btn" onClick={() => { setListingFilter("sale"); setTypeFilter(t.t); setMainTab("properties"); }}>
+                  {lang === "en" ? t.en : t.my}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Rent */}
+          <div className="yn-item">
+            <button className="yn-btn" onClick={() => { setListingFilter("rent"); setMainTab("properties"); }}>
+              {lang === "en" ? "Rent" : "ငှားရမ်းရန်"} <span className="yn-arrow">▾</span>
+            </button>
+            <div className="yn-drop">
+              <button className="yn-dd-top" onClick={() => { setListingFilter("rent"); setRegionFilter("all"); setMainTab("properties"); }}>
+                {lang === "en" ? "View all for rent →" : "ငှားရမ်းရန် အားလုံး →"}
+              </button>
+              <span className="yn-cat">{lang === "en" ? "POPULAR" : "လူကြိုက်များ"}</span>
+              {[{en:"Yankin Apartments",my:"ရန်ကင်း တိုက်ခန်း",r:"yangon"},{en:"Bahan Condos",my:"ဗဟန်း ကွန်ဒို",r:"yangon"},{en:"Hlaing Houses",my:"လှိုင် အိမ်",r:"yangon"},{en:"Mandalay Rentals",my:"မန္တလေး ငှားရမ်း",r:"mandalay"}].map((s,i)=>(
+                <button key={i} className="yn-dd-btn" onClick={() => { setListingFilter("rent"); setRegionFilter(s.r); setMainTab("properties"); }}>
+                  {lang === "en" ? s.en : s.my}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Commercial */}
+          <div className="yn-item">
+            <button className="yn-btn" onClick={() => { setTypeFilter("commercial"); setMainTab("properties"); }}>
+              {lang === "en" ? "Commercial" : "စီးပွားရေး"} <span className="yn-arrow">▾</span>
+            </button>
+            <div className="yn-drop">
+              {[{en:"Office Space",my:"ရုံးခန်း"},{en:"Shop / Retail",my:"ဆိုင်ခန်း"},{en:"Warehouse",my:"ဂိုဒေါင်"},{en:"Factory",my:"စက်ရုံ"}].map((t,i)=>(
+                <button key={i} className="yn-dd-btn" onClick={() => { setTypeFilter("commercial"); setMainTab("properties"); }}>
+                  {lang === "en" ? t.en : t.my}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Guides */}
+          <div className="yn-item">
+            <button className="yn-btn">{lang === "en" ? "Guides" : "လမ်းညွှန်"}</button>
+          </div>
+
+          {/* Advertise */}
+          <div className="yn-item">
+            <button className="yn-btn">{lang === "en" ? "Advertise" : "ကြော်ငြာ"}</button>
+          </div>
+
+          {/* ── Divider ── */}
+          <div style={{ width: "1px", height: "24px", background: "#ddd", margin: "0 6px", flexShrink: 0 }} />
+
+          {/* ── Page tabs (Properties / Map / Projects / Agents) ── */}
+          {([
+            ["properties", lang === "en" ? "Properties" : "အိမ်ခြံမြေ"],
+            ["map", lang === "en" ? "Map" : "မြေပုံ"],
+            ["projects", lang === "en" ? "New Projects" : "စီမံကိန်းသစ်"],
+            ["agents", lang === "en" ? "Agents" : "အေးဂျင့်"],
+          ] as const).map(([tab, label]) => (
+            <div key={tab} className="yn-item">
+              <button className="yn-btn"
+                onClick={() => setMainTab(tab as any)}
+                style={{ color: mainTab === tab ? "#bd9468" : "#222", borderBottom: mainTab === tab ? "3px solid #bd9468" : "3px solid transparent", height: "100%", paddingBottom: "0" }}>
+                {label}
+              </button>
+            </div>
+          ))}
+
+        </nav>
+
+        {/* ── Desktop right actions ── */}
+        <div className="yn-nav" style={{ alignItems: "center", gap: "10px", flexShrink: 0 }}>
+          <div style={{ display: "flex" }}>
+            {(["en","my"] as const).map(l => (
+              <button key={l} onClick={() => setLang(l)}
+                style={{ padding: "5px 10px", fontSize: "12px", fontWeight: 700, border: "none", background: lang === l ? navy : "none", color: lang === l ? gold : "#999", borderRadius: "4px", cursor: "pointer", fontFamily: ff }}>
+                {l === "en" ? "EN" : "MY"}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => onAgentLoginClick?.()}
+            style={{ background: navy, color: gold, border: "none", padding: "8px 16px", borderRadius: "6px", fontSize: "12px", fontWeight: 700, cursor: "pointer", fontFamily: ff, whiteSpace: "nowrap" }}>
+            {lang === "en" ? "Agent Login" : "အေးဂျင့် ဝင်ရောက်"}
+          </button>
+        </div>
+
+        {/* ── Mobile hamburger ── */}
+        <button className="yn-ham" onClick={() => setMenuOpen(true)} aria-label="Open menu"
+          style={{ background: navy, border: "none", borderRadius: "8px", padding: "13px 16px", cursor: "pointer", flexDirection: "column", gap: "6px", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "24px", height: "2px", background: gold, borderRadius: "2px" }} />
+          <div style={{ width: "24px", height: "2px", background: gold, borderRadius: "2px" }} />
+          <div style={{ width: "24px", height: "2px", background: gold, borderRadius: "2px" }} />
         </button>
+
       </header>
 
-      {/* ── TAGLINE ── */}
-      <div style={{ background: navy, padding: "9px 24px", textAlign: "center" }}>
-        <p style={{ color: "#d4af7a", fontSize: "11px", margin: 0, letterSpacing: lang === "en" ? "5px" : "1px", fontStyle: "italic", fontFamily: ff }}>{t.tagline}</p>
+
+      {/* ── SLOGAN STRIP ── */}
+      <div style={{ background: "#111d2b", padding: "7px 32px", display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", borderBottom: "2px solid #bd9468" }}>
+        <span style={{ color: "#bd9468", fontSize: "14px" }}>—</span>
+        <p style={{ color: "#d4af7a", fontSize: "10px", letterSpacing: "5px", margin: 0, fontStyle: "italic", fontFamily: ff, whiteSpace: "nowrap" }}>
+          {lang === "en" ? "PREMIUM PROPERTIES · TRUSTED AGENTS · MYANMAR" : "အဆင့်မြင့် အိမ်ခြံမြေ · ယုံကြည်ရသော အေးဂျင့်များ · မြန်မာ"}
+        </p>
+        <span style={{ color: "#bd9468", fontSize: "14px" }}>—</span>
       </div>
 
-      {/* ── MAIN TABS ── */}
-      <div style={{ background: "#ffffff", borderBottom: "1px solid #eeeeee", display: "flex", justifyContent: "center", overflowX: "auto" }}>
-        {([
-          ["properties", lang === "en" ? "Properties" : "အိမ်ခြံမြေများ"],
-          ["map", lang === "en" ? "Map Search" : "မြေပုံ ရှာဖွေရန်"],
-          ["projects", lang === "en" ? "New Projects" : "စီမံကိန်းများ"],
-          ["agents", lang === "en" ? "Agents" : "အေးဂျင့်များ"],
-        ] as const).map(([tab, label]) => (
-          <button key={tab} onClick={() => setMainTab(tab as any)}
-            style={{ padding: "14px 20px", background: "transparent", border: "none", borderBottom: mainTab === tab ? `3px solid ${navy}` : "3px solid transparent", color: mainTab === tab ? navy : "#888888", fontSize: "14px", fontWeight: mainTab === tab ? 700 : 400, cursor: "pointer", fontFamily: ff, transition: "all 0.2s", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "6px" }}>
-            {tab === "map" && (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: mainTab === tab ? 1 : 0.5 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            )}
-            {label}
-          </button>
-        ))}
-      </div>
+
 
       {mainTab === "properties" && <>
-      {/* ── HERO ── */}
-      <div style={{ background: navy, padding: "40px 28px", textAlign: "center" }}>
-        <h1 style={{ color: white, fontSize: "36px", fontWeight: 700, margin: "0 0 6px", lineHeight: 1.2, fontFamily: ff, letterSpacing: "-0.5px" }}>{t.hero1}</h1>
-        <h2 style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", fontWeight: 400, margin: "0 0 28px", fontFamily: ff }}>{t.hero2}</h2>
+      {/* ── HERO — cinematic gold particles background ── */}
+      <div style={{ background: "radial-gradient(ellipse at top, #1a2e45 0%, #0a1520 100%)", padding: "40px 28px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+
+        {/* Canvas for gold particles */}
+        <canvas id="yumeParticles" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} />
+        <style>{`
+          @keyframes yumeParticleInit {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          #yumeParticles { animation: yumeParticleInit 1s ease forwards; }
+        `}</style>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            function initParticles() {
+              var c = document.getElementById('yumeParticles');
+              if (!c) { setTimeout(initParticles, 100); return; }
+              var ctx = c.getContext('2d');
+              function resize() { c.width = c.offsetWidth; c.height = c.offsetHeight; }
+              resize();
+              window.addEventListener('resize', resize);
+              var particles = Array.from({length: 80}, function() {
+                return {
+                  x: Math.random() * c.width,
+                  y: Math.random() * c.height,
+                  r: Math.random() * 1.8 + 0.3,
+                  a: Math.random() * Math.PI * 2,
+                  speed: Math.random() * 0.012 + 0.004
+                };
+              });
+              function draw() {
+                ctx.clearRect(0, 0, c.width, c.height);
+                particles.forEach(function(p) {
+                  p.a += p.speed;
+                  var alpha = Math.sin(p.a) * 0.5 + 0.5;
+                  ctx.beginPath();
+                  ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                  ctx.fillStyle = 'rgba(189,148,104,' + (alpha * 0.85) + ')';
+                  ctx.fill();
+                });
+                requestAnimationFrame(draw);
+              }
+              draw();
+            }
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', initParticles);
+            } else {
+              initParticles();
+            }
+          })();
+        ` }} />
+
+        {/* Gold glow at top */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, transparent, #bd9468, transparent)", pointerEvents: "none" }} />
+        <h1 style={{ color: white, fontSize: "clamp(24px, 4vw, 40px)", fontWeight: 700, margin: "0 0 8px", lineHeight: 1.2, fontFamily: ff, letterSpacing: "-0.5px", position: "relative" }}>{t.hero1}</h1>
+        <h2 style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", fontWeight: 400, margin: "0 0 28px", fontFamily: ff, position: "relative" }}>{t.hero2}</h2>
 
         {/* ── BUY / RENT toggle ── */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px", position: "relative" }}>
           <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: "12px", padding: "4px", display: "inline-flex" }}>
             {([["sale", lang === "my" ? "ဝယ်ရန်" : "Buy"],
                ["rent", lang === "my" ? "ငှားရမ်းရန်" : "Rent"]] as const).map(([v, label]) => (
@@ -739,8 +1141,8 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
           </div>
         </div>
 
-        {/* ── Search panel ── */}
-        <div style={{ maxWidth: "740px", margin: "0 auto", background: white, borderRadius: "12px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.25)" }}>
+        {/* ── Search panel — centered ── */}
+        <div style={{ maxWidth: "740px", margin: "0 auto", background: white, borderRadius: "12px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.25)", position: "relative" }}>
           <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
 
             {/* Row 2 — Keyword search */}
@@ -751,98 +1153,95 @@ export default function PublicPropertyPage({ onAgentLoginClick }: PublicProperty
               <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: gold, fontSize: "16px" }}></span>
             </div>
 
-            {/* Row 3 — Region → Township (smart cascade) */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <select value={regionFilter} onChange={e => { setRegionFilter(e.target.value); setTownshipFilter("all"); }}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                <option value="all">{lang === "en" ? "All Regions" : "ဒေသများ အားလုံး"}</option>
-                {Object.entries(REGIONS).map(([key, r]) => (
-                  <option key={key} value={key}>{lang === "en" ? r.en : r.my}</option>
-                ))}
-              </select>
-              <select value={townshipFilter} onChange={e => setTownshipFilter(e.target.value)}
-                disabled={regionFilter === "all"}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid ${regionFilter === "all" ? "#e8dfc4" : "#ddd5c0"}`, background: regionFilter === "all" ? "#f5f0e8" : "#faf7f2", fontSize: "13px", fontFamily: ff, color: regionFilter === "all" ? "#aaa" : navy, cursor: regionFilter === "all" ? "not-allowed" : "pointer" }}>
-                <option value="all">{lang === "en" ? (regionFilter === "all" ? "Select Region First" : "All Townships") : (regionFilter === "all" ? "ဒေသ အရင်ရွေးပါ" : "မြို့နယ်အားလုံး")}</option>
-                {regionFilter !== "all" && REGIONS[regionFilter]?.townships.map(tp => (
-                  <option key={tp.en} value={tp.en}>{lang === "en" ? tp.en : tp.my}</option>
-                ))}
-              </select>
-            </div>
+                {/* Region → Township */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <select value={regionFilter} onChange={e => { setRegionFilter(e.target.value); setTownshipFilter("all"); }}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="all">{lang === "en" ? "All Regions" : "ဒေသများ အားလုံး"}</option>
+                    {Object.entries(REGIONS).map(([key, r]) => (
+                      <option key={key} value={key}>{lang === "en" ? r.en : r.my}</option>
+                    ))}
+                  </select>
+                  <select value={townshipFilter} onChange={e => setTownshipFilter(e.target.value)}
+                    disabled={regionFilter === "all"}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid ${regionFilter === "all" ? "#e8dfc4" : "#ddd5c0"}`, background: regionFilter === "all" ? "#f5f0e8" : "#faf7f2", fontSize: "13px", fontFamily: ff, color: regionFilter === "all" ? "#aaa" : navy, cursor: regionFilter === "all" ? "not-allowed" : "pointer" }}>
+                    <option value="all">{lang === "en" ? (regionFilter === "all" ? "Select Region First" : "All Townships") : (regionFilter === "all" ? "ဒေသ အရင်ရွေးပါ" : "မြို့နယ်အားလုံး")}</option>
+                    {regionFilter !== "all" && REGIONS[regionFilter]?.townships.map(tp => (
+                      <option key={tp.en} value={tp.en}>{lang === "en" ? tp.en : tp.my}</option>
+                    ))}
+                  </select>
+                </div>
 
-            {/* Row 4 — Property type + Category */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                <option value="all">{t.allTypes}</option>
-                {types.map(tp => <option key={tp} value={tp}>{tp}</option>)}
-              </select>
-              <select value={bedsFilter} onChange={e => setBedsFilter(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                <option value="all">{t.anyBeds}</option>
-                <option value="1">{t.bed1}</option>
-                <option value="2">{t.bed2}</option>
-                <option value="3">{t.bed3}</option>
-                <option value="4">{t.bed4}</option>
-              </select>
-            </div>
+                {/* Type + Beds */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="all">{t.allTypes}</option>
+                    {types.map(tp => <option key={tp} value={tp}>{tp}</option>)}
+                  </select>
+                  <select value={bedsFilter} onChange={e => setBedsFilter(e.target.value)}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="all">{t.anyBeds}</option>
+                    <option value="1">{t.bed1}</option>
+                    <option value="2">{t.bed2}</option>
+                    <option value="3">{t.bed3}</option>
+                    <option value="4">{t.bed4}</option>
+                  </select>
+                </div>
 
-            {/* Row 5 — Bathrooms + Sort */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <select value={bathsFilter} onChange={e => setBathsFilter(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                <option value="all">{lang === "en" ? "Any Bathrooms" : "ရေချိုးခန်း မရွေး"}</option>
-                <option value="1">{lang === "en" ? "1+ Bath" : "၁+ ရေချိုးခန်း"}</option>
-                <option value="2">{lang === "en" ? "2+ Baths" : "၂+ ရေချိုးခန်း"}</option>
-                <option value="3">{lang === "en" ? "3+ Baths" : "၃+ ရေချိုးခန်း"}</option>
-              </select>
-              <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                <option value="newest">{t.newest}</option>
-                <option value="priceLow">{t.priceLow}</option>
-                <option value="priceHigh">{t.priceHigh}</option>
-              </select>
-            </div>
+                {/* Baths + Sort */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <select value={bathsFilter} onChange={e => setBathsFilter(e.target.value)}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="all">{t.anyBaths}</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                  </select>
+                  <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="newest">{t.newest}</option>
+                    <option value="price_asc">{t.priceLow}</option>
+                    <option value="price_desc">{t.priceHigh}</option>
+                    <option value="featured">{t.featured}</option>
+                  </select>
+                </div>
 
-            {/* Row 6 — Min + Max Price in Lakh */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <select value={minPrice} onChange={e => setMinPrice(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                <option value="all">{lang === "en" ? "Min Price (Lakh)" : "အနည်းဆုံး ဈေး (သိန်း)"}</option>
-                {(listingFilter === "rent"
-                  ? [1,2,3,5,8,10,15,20,30,50]
-                  : [100,200,300,400,500,600,700,800,900,1000,1500,2000,3000,5000,7000,10000,15000,20000,50000]
-                ).map(v => <option key={v} value={v}>{v.toLocaleString()} {lang === "en" ? "Lakh" : "သိန်း"}</option>)}
-              </select>
-              <select value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
-                <option value="all">{lang === "en" ? "Max Price (Lakh)" : "အများဆုံး ဈေး (သိန်း)"}</option>
-                {(listingFilter === "rent"
-                  ? [1,2,3,5,8,10,15,20,30,50,100]
-                  : [100,200,300,400,500,600,700,800,900,1000,1500,2000,3000,5000,7000,10000,15000,20000,50000,999999]
-                ).map(v => <option key={v} value={v}>
-                  {v === 999999 ? (lang === "en" ? "50,000+ Lakh" : "သိန်း ၅၀,၀၀၀ အထက်") : `${v.toLocaleString()} ${lang === "en" ? "Lakh" : "သိန်း"}`}
-                </option>)}
-              </select>
-            </div>
+                {/* Min + Max price */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <select value={minPrice} onChange={e => setMinPrice(e.target.value)}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="all">{t.minPrice}</option>
+                    {(listingFilter === "rent" ? [1,2,3,5,8,10,15,20,30,50,100] : [100,200,300,400,500,600,700,800,900,1000,1500,2000,3000,5000,7000,10000,15000,20000,50000,999999]).map(v => (
+                      <option key={v} value={v}>{v === 999999 ? (lang === "en" ? "50,000+ Lakh" : "သိန်း ၅၀,၀၀၀ အထက်") : `${v.toLocaleString()} ${lang === "en" ? "Lakh" : "သိန်း"}`}</option>
+                    ))}
+                  </select>
+                  <select value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
+                    style={{ padding: "12px 14px", borderRadius: "6px", border: `1px solid #ddd5c0`, background: "#faf7f2", fontSize: "13px", fontFamily: ff, color: navy }}>
+                    <option value="all">{t.maxPrice}</option>
+                    {(listingFilter === "rent" ? [1,2,3,5,8,10,15,20,30,50,100] : [100,200,300,400,500,600,700,800,900,1000,1500,2000,3000,5000,7000,10000,15000,20000,50000,999999]).map(v => (
+                      <option key={v} value={v}>{v === 999999 ? (lang === "en" ? "50,000+ Lakh" : "သိန်း ၅၀,၀၀၀ အထက်") : `${v.toLocaleString()} ${lang === "en" ? "Lakh" : "သိန်း"}`}</option>
+                    ))}
+                  </select>
+                </div>
 
-            {/* Search button */}
-            <button
-              style={{ width: "100%", background: navy, color: gold, border: `2px solid ${gold}`, padding: "14px", borderRadius: "6px", fontSize: "15px", fontWeight: 700, cursor: "pointer", fontFamily: ff, letterSpacing: lang === "en" ? "2px" : "0" }}>
-               {lang === "en" ? "SEARCH" : "ရှာဖွေပါ"}
-            </button>
+                {/* Search button */}
+                <button style={{ width: "100%", background: navy, color: gold, border: `2px solid ${gold}`, padding: "14px", borderRadius: "6px", fontSize: "15px", fontWeight: 700, cursor: "pointer", fontFamily: ff, letterSpacing: lang === "en" ? "2px" : "0" }}>
+                  {lang === "en" ? "SEARCH" : "ရှာဖွေပါ"}
+                </button>
 
-            {/* Quick reset */}
-            {(search || listingFilter !== "all" || typeFilter !== "all" || regionFilter !== "all" || minPrice !== "all" || maxPrice !== "all" || bedsFilter !== "all" || bathsFilter !== "all") && (
-              <button onClick={() => { setSearch(""); setListingFilter("all"); setTypeFilter("all"); setRegionFilter("all"); setTownshipFilter("all"); setMinPrice("all"); setMaxPrice("all"); setBedsFilter("all"); setBathsFilter("all"); }}
-                style={{ width: "100%", background: "transparent", color: "#7a6a5a", border: "1px solid #ddd5c0", padding: "10px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff }}>
-                ✕ {t.clearFilters}
-              </button>
-            )}
+                {/* Quick reset */}
+                {(search || listingFilter !== "all" || typeFilter !== "all" || regionFilter !== "all" || minPrice !== "all" || maxPrice !== "all" || bedsFilter !== "all" || bathsFilter !== "all") && (
+                  <button onClick={() => { setSearch(""); setListingFilter("all"); setTypeFilter("all"); setRegionFilter("all"); setTownshipFilter("all"); setMinPrice("all"); setMaxPrice("all"); setBedsFilter("all"); setBathsFilter("all"); }}
+                    style={{ width: "100%", background: "transparent", color: "#7a6a5a", border: "1px solid #ddd5c0", padding: "10px", borderRadius: "6px", fontSize: "13px", cursor: "pointer", fontFamily: ff }}>
+                    ✕ {t.clearFilters}
+                  </button>
+                )}
 
           </div>
         </div>
       </div>
+
 
       {/* ── CATEGORY PAGE ── */}
       {activeCategory && CATEGORIES[activeCategory] && (
